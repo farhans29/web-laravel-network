@@ -115,7 +115,7 @@
             {{-- <x-dashboard.dashboard-card-10 /> --}}
             <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200" >
                 <header class="px-5 py-4 border-b border-slate-100">
-                    <h2 class="font-semibold text-slate-800">Upcoming Product Offering</h2>
+                    <h2 class="font-semibold text-slate-800">Upcoming Product Offering TEST MODIFICATION</h2>
                 </header>
                 <div class="p-3">
             
