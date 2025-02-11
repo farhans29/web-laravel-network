@@ -45,13 +45,22 @@ class MikrotikApiService
 
     public function getDhcpLeases($client)
     {
-        // return $client->query('/ip/dhcp-server/lease/print')->read();
-        $leases = $client->query('/ip/dhcp-server/lease/print')->read();
-        return array_slice($leases, 0, 10); // Return only the first 10
+        return $client->query('/ip/dhcp-server/lease/print')->read();
+        // $leases = $client->query('/ip/dhcp-server/lease/print')->read();
+        // return array_slice($leases, 0, 10); // Return only the first 10
     }
 
     public function getLeaseHistory($client)
     {
         return $client->query('/ip/dhcp-server/lease/print where !active')->read();
     }
+
+    
+    public function getFirewallList($client)
+    {
+        // Send query to RouterOS and parse response
+        $response = $client->query('/ip/firewall/address-list/print')->read();
+        return $response;
+    }
+
 }

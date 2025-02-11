@@ -17,7 +17,7 @@ class MikrotikController extends Controller
 
     public function getInterfaces($routerId)
     {
-        return view('pages/mikrotik/interfaces-list', compact('interfaces', 'router'));
+        return view('pages/mikrotik/interfaces-list', compact( 'router'));
     }
 
     public function getInterfacesData($routerId)
@@ -42,6 +42,22 @@ class MikrotikController extends Controller
 
     }
 
+    // public function getConnectedDevices($routerId)
+    // {
+    //     $router = Router::where('idrouter', $routerId)->first();
+
+    //     $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+
+    //     if (!$client) {
+    //         return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
+    //     }
+
+    //     $devices = $this->mikrotikService->getDhcpLeases($client);
+    //     dd($devices);
+
+    //     return view('pages/mikrotik/devices-list', compact('devices', 'router'));
+    // }
+
     public function getConnectedDevices($routerId)
     {
         $router = Router::where('idrouter', $routerId)->first();
@@ -52,8 +68,8 @@ class MikrotikController extends Controller
             return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
         }
 
-        $devices = $this->mikrotikService->getDhcpLeases($client);
-        // dd($devices);
+        $devices = $this->mikrotikService->getFirewallList($client);
+        dd($devices);
 
         return view('pages/mikrotik/devices-list', compact('devices', 'router'));
     }

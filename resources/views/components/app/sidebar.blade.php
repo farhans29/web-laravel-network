@@ -65,8 +65,8 @@
                             
                             <!-- Router Name -->
                             <a class="block text-slate-200 hover:text-white truncate transition duration-150"
-                                href="#0"
-                                @click.prevent="sidebarExpanded ? open = !open : sidebarExpanded = true">
+                                href="{{ route('mikrotik.interfaces', ['routerId' => $router->idrouter]) }}"
+                                @click="sidebarExpanded ? open = !open : sidebarExpanded = true">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <svg class="shrink-0 h-6 w-6" viewBox="0 0 24 24">
@@ -89,18 +89,18 @@
 
                             <!-- Submenu (List & New) -->
                             <ul class="pl-9 mt-1 hidden" :class="open ? '!block' : 'hidden'">
-                                <li class="mb-1 last:mb-0">
+                                {{-- <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
                                         @if (Route::is('mikrotik.interfaces') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
                                         href="{{ route('mikrotik.interfaces', ['routerId' => $router->idrouter]) }}">
                                         <span class="text-sm font-medium duration-200">Interfaces</span>
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
                                         @if (Route::is('mikrotik.devices') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
                                         href="{{ route('mikrotik.devices', ['routerId' => $router->idrouter]) }}">
-                                        <span class="text-sm font-medium duration-200">Devices</span>
+                                        <span class="text-sm font-medium duration-200">Connected Devices</span>
                                     </a>
                                 </li>
                             </ul>
