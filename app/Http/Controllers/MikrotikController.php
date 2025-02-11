@@ -17,6 +17,12 @@ class MikrotikController extends Controller
 
     public function getInterfaces($routerId)
     {
+        return view('pages/mikrotik/interfaces-list', compact('interfaces', 'router'));
+    }
+
+    public function getInterfacesData($routerId)
+    {
+        
         // Get router details from DB
         $router = Router::where('idrouter', $routerId)->first();
 
@@ -32,8 +38,8 @@ class MikrotikController extends Controller
 
         // Fetch interfaces
         $interfaces = $this->mikrotikService->getInterfaces($client);
+        // dd($interfaces);
 
-        return view('pages/mikrotik/interfaces-list', compact('interfaces', 'router'));
     }
 
     public function getConnectedDevices($routerId)
