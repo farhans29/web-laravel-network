@@ -46,7 +46,7 @@
             let urlParts = window.location.pathname.split("/");
             let routerId = urlParts[urlParts.length - 1]; // Get last segment
         $.ajax({
-            url: "http://localhost:8000/mikrotik/interfaces/getDataJson/?idr=1",
+            url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
             type: "GET",
             data: { idr: routerId }, // Dynamically set router ID
             success: function (response) {

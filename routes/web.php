@@ -40,11 +40,6 @@ Route::redirect('/', 'login');
 // TRAFFIC COLLECTOR
 Route::get('/traffic-collector', [TrafficCollectorController::class, 'collectTrafficData']);
 Route::prefix('mikrotik')->group(function () {
-        // Route::get('/routers', [MikrotikController::class, 'getAllRouters'])->name('mikrotik.routers');
-        // Route::get('/interfaces/{routerId}', [MikrotikController::class, 'getInterfaces'])->name('mikrotik.interfaces');
-        // Route::get('/interfaces/getData', [MikrotikController::class, 'getInterfacesData'])->name('mikrotik.interfaces-data');  
-        // Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json');  
-        // Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');       
         Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json');  
     });
 
