@@ -17,7 +17,7 @@ class MikrotikController extends Controller
 
     public function getInterfaces($routerId)
     {
-        return view('pages/mikrotik/interfaces-list', compact( 'router'));
+        return view('pages/mikrotik/interfaces-list');
     }
 
     public function getInterfacesData($routerId)
