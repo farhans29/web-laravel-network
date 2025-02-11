@@ -18,7 +18,7 @@ class TrafficCollectorController extends Controller {
 
         try {
             // Define your secret key (store this securely in .env file)
-            $secretKey = env('TRAFFIC_SECRET_KEY', 'default_secret');
+            $secretKey = env('SECRET_KEY', 'default_secret');
 
             // Validate the incoming request
             $validatedData = $request->validate([
