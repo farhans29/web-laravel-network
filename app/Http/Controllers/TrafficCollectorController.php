@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 
+
 class TrafficCollectorController extends Controller {
     public function index() {
     
@@ -40,6 +41,8 @@ class TrafficCollectorController extends Controller {
     // }
     public function collectTrafficData(Request $request)
     {
+     
+
         try {
             // Validate the incoming request
             $validatedData = $request->validate([
@@ -62,8 +65,8 @@ class TrafficCollectorController extends Controller {
 
             // Store in database
             DB::table('t_traffic_logs')->insert([
-                'id_router'  => $idRouter,
-                'int_types'  => $intTypes,
+                'idrouter'  => $idRouter,
+                'int_type'  => $intTypes,
                 'tx_bytes'   => $txBytes,
                 'rx_bytes'   => $rxBytes,
                 'datetime'   => $datetime,
