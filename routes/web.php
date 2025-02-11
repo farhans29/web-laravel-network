@@ -16,6 +16,7 @@ use App\Http\Controllers\profile\ProfileController;
 use App\Http\Controllers\salesorder\NewCustomerRequestController;
 use App\Http\Controllers\salesorder\SalesOrderController;
 use App\Http\Controllers\SearchProductController;
+use App\Http\Controllers\TrafficCollectorController;
 use Faker\Guesser\Name;
 
 
@@ -35,6 +36,10 @@ Route::get('/inventory/getdata', [SearchProductController::class, 'getData'])->n
 Route::get('/inventory/getdetail/{code}', [SearchProductController::class, 'getDetail'])->name('search-product.getdetail');
 
 Route::redirect('/', 'login');
+
+// TRAFFIC COLLECTOR
+Route::get('/traffic-collector', [TrafficCollectorController::class, 'collectTrafficData']);
+
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // ->middleware('checkRoleUser:500,501')
