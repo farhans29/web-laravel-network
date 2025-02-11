@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\MikrotikApiService;
 use App\Models\Router;
+use Yajra\DataTables\Facades\DataTables;
 
 class MikrotikController extends Controller
 {
@@ -62,6 +63,47 @@ class MikrotikController extends Controller
                 ->make();
         }
     }
+
+    public function getInterfacesDataJson(Request $request)
+    {
+        $validatedData = $request->validate([
+            'idr'   => 'required|string', // Ensure it's a valid router ID
+        ]);
+
+        // Check if the secret key is provided
+            // $providedKey = $request->input('key');
+            // if (!$providedKey || $providedKey !== $secretKey) {
+            //     return response()->json(['error' => 'Unauthorized request'], 403);
+            // }
+
+        // Extract validated data
+        $idRouter  = $validatedData['idr'];
+        
+        $routerId = $idRouter;
+        // $routerId = 2;
+        
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik router.'], 500);
+        }
+
+        // Fetch interfaces
+        $interfaces = $this->mikrotikService->getInterfaces($client);
+
+        return response()->json([
+            'success' => true,
+            'data' => $interfaces,
+        ], 200);
+    }
+
 
     // public function getConnectedDevices($routerId)
     // {
