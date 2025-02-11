@@ -7,6 +7,9 @@
             <div class="mb-4 sm:mb-0">
                 <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">
                     Interfaces for {{ $router->name }}
+                    @if(!isset($router) || !$router)
+                        <p class="text-red-500">Error: Router not found</p>
+                    @endif
                 </h1>
             </div>
         </div>
@@ -16,8 +19,6 @@
         </div>
 
         <!-- Table -->
-        {{-- <h1>Interfaces for {{ $router->name }}</h1> --}}
-
         <div class="table-responsive">
             <table id="interface" class="table table-striped table-bordered text-xs" style="width:100%">
                 <thead>
@@ -42,20 +43,20 @@
                 processing: true,
                 serverSide: false,
                 stateServe: true,
-                "order": [[ 1, "desc" ]],
+                // "order": [[ 1, "desc" ]],
                 language: {
-                    search: "Search Reimburse Request # : "
+                    search: "Search Interface # : "
                 },
                 ajax: {
-                    url: "{{ route('mikrotik.interfaces-data')}}",
+                    url: "{{ route('mikrotik.interfaces-data') }}",
                     data:function(d){
-                        d.routerId = $router->idrouter
+                        d.routerId = "{{ $router->idrouter }}"
                     }
                 },
                 columns: [
                     {
-                        data: "address",
-                        name: "address"
+                        data: "name",
+                        name: "name"
                     },
                     // {
                     //     data: "idreqform",
@@ -142,60 +143,60 @@
                 //     }
             });
 
-            $(".status").on('change', function (e) {
-                e.preventDefault();
-                $('#approval').DataTable().ajax.reload();
-            })
-            $(".company").on('change', function (e) {
-                e.preventDefault();
-                $('#approval').DataTable().ajax.reload();
-            })
-            $(".department").on('change', function (e) {
-                e.preventDefault();
-                $('#approval').DataTable().ajax.reload();
-            })
+            // $(".status").on('change', function (e) {
+            //     e.preventDefault();
+            //     $('#approval').DataTable().ajax.reload();
+            // })
+            // $(".company").on('change', function (e) {
+            //     e.preventDefault();
+            //     $('#approval').DataTable().ajax.reload();
+            // })
+            // $(".department").on('change', function (e) {
+            //     e.preventDefault();
+            //     $('#approval').DataTable().ajax.reload();
+            // })
 
-            $('#approval').on("click", ".btn-cancel",  function () {
-                const id = $(this).data("id");
-                $("input[name!='_token']").val("");
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "Want to Cancel Reimburse Request!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, Cancel Request!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            headers: {
-                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                            },
-                            type: "POST",
-                            url: `/ga/reimburse-approval/cancel/${id}`,
-                            success: function (response) {
-                                console.info("response: ", response)
-                                const { status, message } = response;
-                                if (status == 1) {
-                                    Swal.fire({
-                                        icon : 'success',
-                                        title: 'Success!',
-                                        text: `Reimburse Request has been Canceled.`,
-                                        confirmButtonColor: '#3085d6',
-                                        confirmButtonText: 'OK'
-                                    });
-                                    window.location.reload(true);
-                                }
-                            },
-                            error: function (data) {
-                                console.info("error: ", data)
-                            }
-                        })
+            // $('#approval').on("click", ".btn-cancel",  function () {
+            //     const id = $(this).data("id");
+            //     $("input[name!='_token']").val("");
+            //     Swal.fire({
+            //         title: 'Are you sure?',
+            //         text: "Want to Cancel Reimburse Request!",
+            //         icon: 'warning',
+            //         showCancelButton: true,
+            //         confirmButtonColor: '#3085d6',
+            //         cancelButtonColor: '#d33',
+            //         confirmButtonText: 'Yes, Cancel Request!'
+            //     }).then((result) => {
+            //         if (result.isConfirmed) {
+            //             $.ajax({
+            //                 headers: {
+            //                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            //                 },
+            //                 type: "POST",
+            //                 url: `/ga/reimburse-approval/cancel/${id}`,
+            //                 success: function (response) {
+            //                     console.info("response: ", response)
+            //                     const { status, message } = response;
+            //                     if (status == 1) {
+            //                         Swal.fire({
+            //                             icon : 'success',
+            //                             title: 'Success!',
+            //                             text: `Reimburse Request has been Canceled.`,
+            //                             confirmButtonColor: '#3085d6',
+            //                             confirmButtonText: 'OK'
+            //                         });
+            //                         window.location.reload(true);
+            //                     }
+            //                 },
+            //                 error: function (data) {
+            //                     console.info("error: ", data)
+            //                 }
+            //             })
 
-                    }
-                })
-            });
+            //         }
+            //     })
+            // });
         });
     </script>
     @endsection

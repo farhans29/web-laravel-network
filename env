@@ -1,5 +1,5 @@
-APP_NAME="CRM-ISS"
-APP_ENV=local
+APP_NAME="CRM-NETWORK"
+APP_ENV=production
 APP_KEY=base64:bhfOKeBjFgSe0a6OJZkPEZse8m0zESpm+qy1g42SR8Y=
 APP_DEBUG=true
 APP_URL=https://localhost
@@ -9,11 +9,11 @@ LOG_DEPRECATIONS_CHANNEL=null
 LOG_LEVEL=debug
 
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
+DB_HOST=103.152.118.77
 DB_PORT=3306
-DB_DATABASE=iss
-DB_USERNAME=root
-DB_PASSWORD=
+DB_DATABASE=iosadmin_network
+DB_USERNAME=iosadmin_ios_sa
+DB_PASSWORD=issCRM838$$
 
 BROADCAST_DRIVER=log
 CACHE_DRIVER=file
@@ -56,3 +56,6 @@ VITE_PUSHER_HOST="${PUSHER_HOST}"
 VITE_PUSHER_PORT="${PUSHER_PORT}"
 VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
 VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+
+BASE_URL_FILE=https://integrated-os.cloud/web-laravel-network/
+SAVE_URL_FILE=/home/iosadmin/public_html/web-laravel-network/
