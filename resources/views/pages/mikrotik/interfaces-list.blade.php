@@ -47,7 +47,7 @@
                     search: "Search Reimburse Request # : "
                 },
                 ajax: {
-                    url: "{{ route('mikrotik.interfaces-data'}}",
+                    url: "{{ route('mikrotik.interfaces-data')}}",
                     data:function(d){
                         d.routerId = $router->idrouter
                     }
