@@ -17,10 +17,14 @@
         <!-- label -->
         <div class="flex flex-row text-xs mb-3">
         </div>
+        
+        <div id="statusContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+        <!-- Status boxes will be dynamically added here -->
+        </div>
 
         <!-- Table -->
         <div class="table-responsive">
-            <table id="interfaceTable" class="table table-bordered text-xs" style="width:100%">
+            <table id="interfaceTable" class="relative table table-bordered text-xs" style="width:100%">
                 <thead>
                     <tr>
                         {{-- <th class="text-center">*</th> --}}
@@ -45,49 +49,90 @@
         $(document).ready(function () {
             let urlParts = window.location.pathname.split("/");
             let routerId = urlParts[urlParts.length - 1]; // Get last segment
-        $.ajax({
-            url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
-            type: "GET",
-            data: { idr: routerId }, // Dynamically set router ID
-            success: function (response) {
-                let interfaces = response[0] || []; // Extract first array
-                
-                let tableBody = "";
-                interfaces.forEach(function (item) {
-                    let rowColor = "";
-                    if (item.running === "true" && item.disabled === "false") {
-                    rowColor = 'background-color: #d4edda;'; // Green
-                    } else if (item.running === "false" && item.disabled === "false") {
-                        rowColor = 'background-color: #f5848e;'; // Red
-                    }  else {
-                        rowColor = 'background-color: #6e6d6d;' // Grey
-                    }
+            $.ajax({
+                // url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
+                url: "http://localhost:8000/mikrotik/interfaces/getDataJson/?idr=1",
+                type: "GET",
+                data: { idr: routerId }, // Dynamically set router ID
+                success: function (response) {
+                    let interfaces = response[0] || []; // Extract first array
+                    let tableBody = "";
+                    let statusContainer = document.getElementById("statusContainer");
 
-                    tableBody += `
-                        <tr style="${rowColor}">
-                            <td>${item.name}</td>
-                            <td>${item["mac-address"]}</td>
-                            <td>${item["rx-byte"]}</td>
-                            <td>${item["tx-byte"]}</td>
-                            <td class="text-center">${item.running === "true" ? "Running" : "Stopped"}</td>
-                            <td class="text-center">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
-                            <td>
-                                <button class="btn-action" data-name="${item['.id']}">
-                                    ⚙️ Action
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
+
+                    interfaces.forEach(function (item) {
+                        let rowColor = "background-color: #e0e0e0;"; // Default: Soft gray
+                        let statusColor = "#6c757d"; // Default gray
+                        let statusText = "Unknown";
+                        
+                        if (item.running === "true" && item.disabled === "false") {
+                            rowColor = 'background-color: #d4edda;'; // Green (Running & Enabled)
+                            statusColor = "#28a745"; // Green
+                            statusText = "Running ✅";
+                        } else if (item.running === "false" && item.disabled === "false") {
+                            rowColor = 'background-color: #f5848e;'; // Red (Stopped but Enabled)
+                            statusColor = "#dc3545"; // Red
+                            statusText = "Stopped ❌";
+                        } else if (item.disabled === "true") {
+                            statusColor = "#6c757d"; // Gray (Disabled)
+                            statusText = "Disabled ⚠️";
+                        }
+                        // Append Status Box for each interface
+                        let statusBox = document.createElement("div");
+                        statusBox.className = "p-2 text-white font-semibold text-xs text-center rounded-md shadow-sm";
+                        statusBox.style.backgroundColor = statusColor;
+                        statusBox.innerHTML = `<span>${item.name}</span><br><small>${statusText}</small>`;
+                        statusContainer.appendChild(statusBox);
+
+                        tableBody += `
+                            <tr style="${rowColor}">
+                                <td>${item.name}</td>
+                                <td>${item["mac-address"]}</td>
+                                <td>${item["rx-byte"]}</td>
+                                <td>${item["tx-byte"]}</td>
+                                <td class="text-center">${item.running === "true" ? "Running" : "Stopped"}</td>
+                                <td class="text-center">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
+                                <td>
+                                    <button class="btn-action" data-name="${item['.id']}">
+                                        ⚙️ Action
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
 
                 $("#interfaceTable tbody").html(tableBody);
 
                 // Initialize DataTables for sorting
                 $("#interfaceTable").DataTable({
-                    paging: false,    // Disable pagination
+                    paging: true,    // Disable pagination
                     searching: true,  // Enable search
                     ordering: true,   // Enable column sorting
+                    // pageLength: 20,
+                    lengthMenu: [
+                        [20, 25, 50, 100], 
+                        [20, 25, 50, 100]
+                    ],
+                    layout: {
+                        topStart: 'info',
+                        bottom: 'paging',
+                        bottomStart: null,
+                        bottomEnd: null
+                    }
                 });
+
+                // Determine overall status block color
+                let statusBlock = document.getElementById("statusBlock");
+                if (runningCount === interfaces.length && enabledCount === interfaces.length) {
+                    statusBlock.style.backgroundColor = "#28a745"; // Green (All running & enabled)
+                    statusBlock.textContent = "All Interfaces Operational ✅";
+                } else if (enabledCount > 0 && runningCount === 0) {
+                    statusBlock.style.backgroundColor = "#dc3545"; // Red (None running, but enabled)
+                    statusBlock.textContent = "All Interfaces Stopped ❌";
+                } else {
+                    statusBlock.style.backgroundColor = "#6c757d"; // Gray (Mixed or unknown)
+                    statusBlock.textContent = "Partial Connection ⚠️";
+                }
 
                 // Action button event listener
                 $(".btn-action").on("click", function () {
