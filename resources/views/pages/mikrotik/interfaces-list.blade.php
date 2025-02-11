@@ -20,23 +20,90 @@
 
         <!-- Table -->
         <div class="table-responsive">
-            <table id="interface" class="table table-striped table-bordered text-xs" style="width:100%">
+            <table id="interfaceTable" class="table table-bordered text-xs" style="width:100%">
                 <thead>
                     <tr>
-                        {{-- <th class="text-center">Port</th> --}}
+                        {{-- <th class="text-center">*</th> --}}
+                        <th class="text-center">Port</th>
                         <th class="text-center">Name</th>
-                        {{-- <th class="text-center">Status</th>
-                        <th class="text-center">TX</th>
                         <th class="text-center">RX</th>
-                        <th class="text-center">Action</th> --}}
+                        <th class="text-center">TX</th>
+                        <th class="text-center">Running</th>
+                        <th class="text-center">Enabled</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
+                <tbody>
+                    {{-- Data wil be inserted here --}}
+                </tbody>
             </table>
         </div>
     </div>
 
     @section('js-page')
     <script>
+        $(document).ready(function () {
+            let urlParts = window.location.pathname.split("/");
+            let routerId = urlParts[urlParts.length - 1]; // Get last segment
+        $.ajax({
+            url: "http://localhost:8000/mikrotik/interfaces/getDataJson/?idr=1",
+            type: "GET",
+            data: { idr: routerId }, // Dynamically set router ID
+            success: function (response) {
+                let interfaces = response[0] || []; // Extract first array
+                
+                let tableBody = "";
+                interfaces.forEach(function (item) {
+                    let rowColor = "";
+                    if (item.running === "true" && item.disabled === "false") {
+                    rowColor = 'background-color: #d4edda;'; // Green
+                    } else if (item.running === "false" && item.disabled === "false") {
+                        rowColor = 'background-color: #f5848e;'; // Red
+                    }  else {
+                        rowColor = 'background-color: #6e6d6d;' // Grey
+                    }
+
+                    tableBody += `
+                        <tr style="${rowColor}">
+                            <td>${item.name}</td>
+                            <td>${item["mac-address"]}</td>
+                            <td>${item["rx-byte"]}</td>
+                            <td>${item["tx-byte"]}</td>
+                            <td class="text-center">${item.running === "true" ? "Running" : "Stopped"}</td>
+                            <td class="text-center">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
+                            <td>
+                                <button class="btn-action" data-name="${item['.id']}">
+                                    ⚙️ Action
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                $("#interfaceTable tbody").html(tableBody);
+
+                // Initialize DataTables for sorting
+                $("#interfaceTable").DataTable({
+                    paging: false,    // Disable pagination
+                    searching: true,  // Enable search
+                    ordering: true,   // Enable column sorting
+                });
+
+                // Action button event listener
+                $(".btn-action").on("click", function () {
+                    let interfaceName = $(this).data("name");
+                    alert("You clicked action on: " + interfaceName);
+                    // You can replace the alert with a custom function, modal, or AJAX request
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching data:", error);
+            }
+        });
+    });
+    </script>
+
+    {{-- <script>
          $(document).ready(function () {
             $('#interface').DataTable({
                 responsive: true,
@@ -198,7 +265,7 @@
             //     })
             // });
         });
-    </script>
+    </script> --}}
     @endsection
 </x-app-layout>
 

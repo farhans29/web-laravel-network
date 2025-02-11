@@ -65,6 +65,7 @@ class MikrotikController extends Controller
 
     public function getInterfacesDataJson(Request $request)
     {
+        
         $validatedData = $request->validate([
             'idr'   => 'required|string', // Ensure it's a valid router ID
         ]);
@@ -98,8 +99,9 @@ class MikrotikController extends Controller
         $interfaces = $this->mikrotikService->getInterfaces($client);
 
         return response()->json([
-            'success' => true,
-            'data' => $interfaces,
+            // 'success' => true,
+            // 'data' => $interfaces,
+            $interfaces
         ], 200);
     }
 

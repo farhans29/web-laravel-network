@@ -11,18 +11,18 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class TrafficCollectorTest extends TestCase
 {
        use DatabaseTransactions; // Rolls back DB changes after each test
-    // use RefreshDatabase; // Ensures a fresh database state for each test
 
     /** @test */
     public function it_stores_traffic_data_successfully()
     {
         // Simulate the request data
         $data = [
-            'idr' => 1,
-            'intp' => 'eth1',
-            'tx' => 1024,
-            'rx' => 2048,
+            'idr' => 25,
+            'intp' => 'eth01',
+            'tx' => 989898,
+            'rx' => 101010,
             'dt' => now()->format('Y-m-d H:i:s'),
+            'key' => 'MrqIl2o*x$?b8CT',
         ];
 
         // Make a GET request to the endpoint
@@ -34,8 +34,8 @@ class TrafficCollectorTest extends TestCase
 
         // Verify data was inserted into the database
         $this->assertDatabaseHas('t_traffic_logs', [
-            'id_router' => $data['idr'],
-            'int_types' => $data['intp'],
+            'idrouter' => $data['idr'],
+            'int_type' => $data['intp'],
             'tx_bytes' => $data['tx'],
             'rx_bytes' => $data['rx'],
             'datetime' => $data['dt'],
