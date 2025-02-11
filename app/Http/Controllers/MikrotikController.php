@@ -23,8 +23,9 @@ class MikrotikController extends Controller
         return view('pages/mikrotik/interfaces-list', compact('router'));
     }
 
-    public function getInterfacesData($routerId)
+    public function getInterfacesData(Request $request)
     {
+        $routerId = $request->routerId;
         
         // Get router details from DB
         $router = Router::where('idrouter', $routerId)->first();
@@ -43,6 +44,23 @@ class MikrotikController extends Controller
         $interfaces = $this->mikrotikService->getInterfaces($client);
         // dd($interfaces);
 
+        if ($request->ajax()) {
+            return DataTables::of($interfaces)
+                ->addColumn('action', function ($interfaces) {
+                    return '
+                    <div class="flex flex-row justify-center">
+                        <a href = "/ga/rab-approval/list/view/' . $interfaces->idrec . '" class="btn btn-sm btn-modal text-sm bg-sky-500 text-white ml-1 hover:bg-sky-600"   
+                        >View</a>
+                        
+                        <a href = "/ga/rab-approval/list/submitpage/' . $interfaces->idrec . '" class="btn btn-sm text-sm text-white ml-1" style="background-color: rgb(132 204 22); transition: background-color 0.3s ease-in-out;transition: background-color 0.3s ease-in-out;"  
+                        >Submit for Review</a>                      
+                        
+                    </div>';
+                })
+
+                ->rawColumns(['action'])
+                ->make();
+        }
     }
 
     // public function getConnectedDevices($routerId)

@@ -49,9 +49,7 @@
                 ajax: {
                     url: "{{ route('mikrotik.interfaces', ['routerId' => $router->idrouter]) }}",
                     data:function(d){
-                        d.status = $("#status").val()
-                        d.company = $("#company").val()
-                        d.department = $("#department").val()
+                        d.routerId = $router->idrouter;
                     }
                 },
                 columns: [
