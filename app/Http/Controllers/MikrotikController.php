@@ -20,6 +20,7 @@ class MikrotikController extends Controller
     {        
         // Get router details from DB
         $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
 
         return view('pages/mikrotik/interfaces-list', compact('router'));
     }
@@ -27,40 +28,38 @@ class MikrotikController extends Controller
     public function getInterfacesData(Request $request)
     {
         $routerId = $request->routerId;
+        // dd($routerId);
         
-        // Get router details from DB
+        // Get router details
         $router = Router::where('idrouter', $routerId)->first();
 
         if (!$router) {
-            return redirect()->back()->with('error', 'Router not found.');
+            return response()->json(['error' => 'Router not found.'], 404);
         }
 
         // Connect to MikroTik
         $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
         if (!$client) {
-            return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
+            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
         }
 
         // Fetch interfaces
-        $interfaces = $this->mikrotikService->getInterfaces($client);
+        $interfaces = collect($this->mikrotikService->getInterfaces($client));
         // dd($interfaces);
 
+        // Debug to check structure
         if ($request->ajax()) {
             return DataTables::of($interfaces)
-                ->addColumn('action', function ($interfaces) {
+                ->addColumn('action', function ($row) {
                     return '
                     <div class="flex flex-row justify-center">
-                        <a href = "/ga/rab-approval/list/view/' . $interfaces->idrec . '" class="btn btn-sm btn-modal text-sm bg-sky-500 text-white ml-1 hover:bg-sky-600"   
-                        >View</a>
+                        <a href="/ga/rab-approval/list/view/' . $row['.id'] . '" class="btn btn-sm btn-modal text-sm bg-sky-500 text-white ml-1 hover:bg-sky-600">View</a>
                         
-                        <a href = "/ga/rab-approval/list/submitpage/' . $interfaces->idrec . '" class="btn btn-sm text-sm text-white ml-1" style="background-color: rgb(132 204 22); transition: background-color 0.3s ease-in-out;transition: background-color 0.3s ease-in-out;"  
-                        >Submit for Review</a>                      
-                        
+                        <a href="/ga/rab-approval/list/submitpage/' . $row['.id'] . '" class="btn btn-sm text-sm text-white ml-1" style="background-color: rgb(132 204 22); transition: background-color 0.3s ease-in-out;">Submit for Review</a>                      
                     </div>';
                 })
-
                 ->rawColumns(['action'])
-                ->make();
+                ->make(true);
         }
     }
 
