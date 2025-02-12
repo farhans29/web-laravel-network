@@ -51,7 +51,7 @@
             let urlParts = window.location.pathname.split("/");
             let routerId = urlParts[urlParts.length - 1]; // Get last segment
             $.ajax({
-                // url: "http://localhost:8000/mikrotik/interfaces/getDataJson/?idr=1",
+                // url: "http://127.0.0.0:8000/mikrotik/interfaces/getDataJson/?idr=1",
                 url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
                 type: "GET",
                 data: { idr: routerId }, // Dynamically set router ID
@@ -163,8 +163,9 @@
                     let routerPort = "{{ $router->web_port }}"; // Ensure these values are set in the controller
 
                     let url = `http://${routerIp}:${routerPort}/graphs/iface/${interfaceName}`;
+                    console.log($url);
 
-                    window.open(url, "_blank", "width=800,height=600");
+                    // window.open(url, "_blank", "width=800,height=600");
                 });
             },
             error: function (xhr, status, error) {
