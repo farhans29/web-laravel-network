@@ -161,9 +161,10 @@
                     let interfaceName = $(this).data("name").replace(/ /g, "%20");
                     let routerIp = "{{ $router->ip }}"; // Blade syntax inside JavaScript
                     let routerPort = "{{ $router->web_port }}"; // Ensure these values are set in the controller
+                    alert("You clicked action on: " + interfaceName + " " + routerIp + " " + routerPort);
 
                     let url = `http://${routerIp}:${routerPort}/graphs/iface/${interfaceName}`;
-                    console.log($url);
+                    alert("You clicked action on: " + url);
 
                     // window.open(url, "_blank", "width=800,height=600");
                 });
