@@ -81,10 +81,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/sales-order/getdetail/{salesId}', [SalesOrderController::class, 'getDetail'])->name('sales-order.getdetail');
         Route::post('/sales-order/update/{salesId}', [SalesOrderController::class, 'updateSo'])->name('sales-order.updateso');
         Route::get('/sales-order/print/{salesId}', [SalesOrderController::class, 'print'])->name('sales-order.print');
-
-        Route::get('/new-customer', [NewCustomerRequestController::class, 'index'])->name('new-customer');
-        Route::get('/new-customer/getdata', [NewCustomerRequestController::class, 'getData'])->name('new-customer.getdata');
-        Route::post('/new-customer/create', [NewCustomerRequestController::class, 'create'])->name('new-customer.create');
     });
     
 

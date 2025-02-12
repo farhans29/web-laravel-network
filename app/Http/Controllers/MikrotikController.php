@@ -104,24 +104,7 @@ class MikrotikController extends Controller
             $interfaces
         ], 200);
     }
-
-
-    // public function getConnectedDevices($routerId)
-    // {
-    //     $router = Router::where('idrouter', $routerId)->first();
-
-    //     $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
-
-    //     if (!$client) {
-    //         return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
-    //     }
-
-    //     $devices = $this->mikrotikService->getDhcpLeases($client);
-    //     dd($devices);
-
-    //     return view('pages/mikrotik/devices-list', compact('devices', 'router'));
-    // }
-
+    
     public function getConnectedDevices($routerId)
     {
         $router = Router::where('idrouter', $routerId)->first();

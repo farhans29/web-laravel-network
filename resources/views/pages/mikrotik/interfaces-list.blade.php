@@ -44,14 +44,15 @@
         </div>
     </div>
 
+    @include('components.modal-interface-image')
     @section('js-page')
     <script>
         $(document).ready(function () {
             let urlParts = window.location.pathname.split("/");
             let routerId = urlParts[urlParts.length - 1]; // Get last segment
             $.ajax({
-                url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
                 // url: "http://localhost:8000/mikrotik/interfaces/getDataJson/?idr=1",
+                url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
                 type: "GET",
                 data: { idr: routerId }, // Dynamically set router ID
                 success: function (response) {
@@ -93,8 +94,8 @@
                                 <td class="text-center">${item.running === "true" ? "Running" : "Stopped"}</td>
                                 <td class="text-center">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
                                 <td>
-                                    <button class="btn-action" data-name="${item['.id']}">
-                                        ⚙️ Action
+                                    <button class="btn-action" data-name="${item.name}">
+                                        View MRTG
                                     </button>
                                 </td>
                             </tr>
@@ -134,11 +135,36 @@
                     statusBlock.textContent = "Partial Connection ⚠️";
                 }
 
-                // Action button event listener
+                // // Action button event listener
+                // $(".btn-action").on("click", function () {
+                //     let interfaceName = $(this).data("name");
+                //     let imageUrl = `/images/${interfaceName}.jpg`; // Adjust the path to where images are stored
+
+                //     $("#modalImage").attr("src", imageUrl);
+                //     $("#imageModal").removeClass("hidden");
+
+                //     console.log("Modal opened for:", interfaceName);
+                // });
+                
+                // $("#closeModal").on("click", function () {
+                //     $("#imageModal").addClass("hidden");
+                // });
+
+                // // Close modal if clicked outside
+                // $("#imageModal").on("click", function (event) {
+                //     if ($(event.target).is("#imageModal")) {
+                //         $("#imageModal").addClass("hidden");
+                //     }
+                // });
+
                 $(".btn-action").on("click", function () {
-                    let interfaceName = $(this).data("name");
-                    alert("You clicked action on: " + interfaceName);
-                    // You can replace the alert with a custom function, modal, or AJAX request
+                    let interfaceName = $(this).data("name").replace(/ /g, "%20");
+                    let routerIp = "{{ $router->ip }}"; // Blade syntax inside JavaScript
+                    let routerPort = "{{ $router->web_port }}"; // Ensure these values are set in the controller
+
+                    let url = `http://${routerIp}:${routerPort}/graphs/iface/${interfaceName}`;
+
+                    window.open(url, "_blank", "width=800,height=600");
                 });
             },
             error: function (xhr, status, error) {
