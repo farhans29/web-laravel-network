@@ -106,11 +106,6 @@ class TrafficCollectorController extends Controller {
             // return response()->json(['message' => 'Data received successfully'], 200);
             return response()->make("
                 <h3 style='color: green;'>Data received successfully</h3>
-                <p><strong>Router ID:</strong> $idRouter</p>
-                <p><strong>Interface:</strong> $intTypes</p>
-                <p><strong>TX Bytes:</strong> $txBytes</p>
-                <p><strong>RX Bytes:</strong> $rxBytes</p>
-                <p><strong>Stored Datetime:</strong> {$datetime->toDateTimeString()}</p>
             ", 200)->header('Content-Type', 'text/html');
         } catch (ValidationException $e) {
         return response()->json(['error' => $e->errors()], 422);
