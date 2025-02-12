@@ -38,7 +38,8 @@ Route::get('/inventory/getdetail/{code}', [SearchProductController::class, 'getD
 Route::redirect('/', 'login');
 
 // TRAFFIC COLLECTOR
-Route::get('/traffic-collector', [TrafficCollectorController::class, 'collectTrafficData']);
+Route::post('/traffic-collector', [TrafficCollectorController::class, 'collectTrafficData']);
+// Route::get('/traffic-collector', [TrafficCollectorController::class, 'collectTrafficData']);
 Route::prefix('mikrotik')->group(function () {
         Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json');  
     });
