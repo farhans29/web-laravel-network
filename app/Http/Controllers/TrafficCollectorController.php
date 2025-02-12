@@ -261,13 +261,14 @@ class TrafficCollectorController extends Controller {
             // ✅ Try parsing the datetime
             try {
                 // $datetime = Carbon::createFromFormat('M/d/Y H:i:s', $dtInput);
-                $datetime = Carbon::createFromFormat('M/d/Y H:i:s', $dtInput)->startOfDay();
+                $datetime = Carbon::createFromFormat('M/d/Y H:i:s', $dtInput);
 
                 // ✅ Check if time is between 00:00:00 and 12:00:00
                 if ($datetime->hour < 12) {
                     $datetime->subDay(); // Subtract one day
-                    Log::info("Date adjusted to previous day and stored", ['adjusted_datetime' => $datetime->toDateTimeString()]);
+                    // Log::info("Date adjusted to previous day and stored", ['adjusted_datetime' => $datetime->toDateTimeString()]);
                 }
+                $datetime = $datetime->startOfDay();
 
             } catch (\Exception $e) {
                 Log::error("Invalid datetime format", [
