@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Arr; // Add this at the top
 use Carbon\Carbon;
 
 class TrafficCollectorController extends Controller {
@@ -107,13 +108,23 @@ class TrafficCollectorController extends Controller {
             return response()->make("
                 <h3 style='color: green;'>Data received successfully</h3>
             ", 200)->header('Content-Type', 'text/html');
-        } catch (ValidationException $e) {
-        return response()->json(['error' => $e->errors()], 422);
-        } catch (\Exception $e) {
-            Log::error("Traffic Data Error: " . $e->getMessage());
-            return response()->json(['error' => 'Something went wrong, please try again later'], 400);
-            // return response()->json(['error' => $e->getMessage()], 400);
-        }
+            } 
+            catch (ValidationException $e) {
+            // return response()->json(['error' => $e->errors()], 422);
+            return response()->make("
+                <h3 style='color: red;'>Validation Error</h3>
+                <p><strong>Errors:</strong> " . implode(', ', Arr::flatten($e->errors())) . "</p>
+            ", 422)->header('Content-Type', 'text/html');
+            } 
+            catch (\Exception $e) {
+                Log::error("Traffic Data Error: " . $e->getMessage());
+                // return response()->json(['error' => 'Something went wrong, please try again later'], 400);
+                // return response()->json(['error' => $e->getMessage()], 400);
+                return response()->make("
+                    <h3 style='color: red;'>Something went wrong</h3>
+                    <p><strong>Error:</strong> " . htmlentities($e->getMessage()) . "</p>
+                ", 400)->header('Content-Type', 'text/html');
+            }
     }
 
 
