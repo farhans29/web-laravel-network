@@ -256,12 +256,12 @@ class TrafficCollectorController extends Controller {
             $intTypes  = $validatedData['intp'];
             $txBytes   = $validatedData['tx'];
             $rxBytes   = $validatedData['rx'];
-            $dtInput = urldecode($validatedData['dt']);
+            $dtInput = $validatedData['dt'];
 
             // ✅ Try parsing the datetime
             try {
                 // $datetime = Carbon::createFromFormat('M/d/Y H:i:s', $dtInput);
-                $datetime = Carbon::createFromFormat('M/d/Y H:i:s', $dtInput);
+                $datetime = Carbon::createFromFormat('Y/m/d H:i:s', $dtInput);
 
                 // ✅ Check if time is between 00:00:00 and 12:00:00
                 if ($datetime->hour < 12) {
@@ -273,10 +273,10 @@ class TrafficCollectorController extends Controller {
             } catch (\Exception $e) {
                 Log::error("Invalid datetime format", [
                     'received' => $dtInput, 
-                    'expected_format' => 'M/d/Y H:i:s'
+                    'expected_format' => 'Y/M/d H:i:s'
                 ]);
                 return response()->json([
-                    'error' => 'Invalid datetime format. Expected: mmm/DD/YYYY H:m:s',
+                    'error' => 'Invalid datetime format. Expected: YYYY/mm/dd H:m:s',
                     'received' => $dtInput
                 ], 422);
             }
