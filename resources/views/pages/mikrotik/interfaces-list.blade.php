@@ -94,7 +94,7 @@
                                 <td class="text-center">${item.running === "true" ? "Running" : "Stopped"}</td>
                                 <td class="text-center">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
                                 <td>
-                                    <button class="btn-action" data-name="${item.name}">
+                                    <button class="btn-action" data-name="${item['.id']}">
                                         View MRTG
                                     </button>
                                 </td>
