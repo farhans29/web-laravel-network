@@ -51,23 +51,33 @@ class TrafficCollectorController extends Controller {
             // Log::info("Traffic Data - ID_R: $idRouter, INT: $intTypes, TX: $txBytes, RX: $rxBytes, DT: $datetime");
 
             // Define time conditions
-            $thirtyDaysAgo = now()->subDays(30);
+            // $thirtyDaysAgo = now()->subDays(30);
 
             // Check if datetime is within the last 30 days
-            if ($datetime->greaterThanOrEqualTo($thirtyDaysAgo)) {
-                DB::table('t_traffic_logs')->insert([
-                    'idrouter'  => $idRouter,
-                    'int_type'  => $intTypes,
-                    'tx_bytes'  => $txBytes,
-                    'rx_bytes'  => $rxBytes,
-                    'datetime'  => $datetime->toDateTimeString(),
-                    'timestamp' => now(),
-                ]);
-            }
+            // if ($datetime->greaterThanOrEqualTo($thirtyDaysAgo)) {
+            //     DB::table('t_traffic_logs')->insert([
+            //         'idrouter'  => $idRouter,
+            //         'int_type'  => $intTypes,
+            //         'tx_bytes'  => $txBytes,
+            //         'rx_bytes'  => $rxBytes,
+            //         'datetime'  => $datetime->toDateTimeString(),
+            //         'timestamp' => now(),
+            //     ]);
+            // }
 
             // Check if datetime is exactly today
-            if ($datetime->isToday()) {
-                DB::table('t_traffic_logs_daily')->insert([
+            // if ($datetime->isToday()) {
+            //     DB::table('t_traffic_logs_daily')->insert([
+            //         'idrouter'  => $idRouter,
+            //         'int_type'  => $intTypes,
+            //         'tx_bytes'  => $txBytes,
+            //         'rx_bytes'  => $rxBytes,
+            //         'datetime'  => $datetime,
+            //         'timestamp' => now(),
+            //     ]);
+            // }
+
+            DB::table('t_traffic_logs_daily')->insert([
                     'idrouter'  => $idRouter,
                     'int_type'  => $intTypes,
                     'tx_bytes'  => $txBytes,
@@ -75,7 +85,6 @@ class TrafficCollectorController extends Controller {
                     'datetime'  => $datetime,
                     'timestamp' => now(),
                 ]);
-            }
 
             return response()->json(['message' => 'Data received successfully'], 200);
         } catch (ValidationException $e) {
