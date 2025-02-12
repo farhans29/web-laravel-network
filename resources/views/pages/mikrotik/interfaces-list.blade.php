@@ -140,7 +140,7 @@
                     // let routerIp = "{{ $router->ip }}"; // Blade syntax inside JavaScript
                     // let routerPort = "{{ $router->web_port }}"; // Ensure these values are set in the controller
                     // alert("You clicked action on: " + interfaceName + " " + routerIp + " " + routerPort);
-                    alter("You clicked on " + interfaceName);
+                    alert("You clicked on " + interfaceName);
 
                     let url = `http://${routerIp}:${routerPort}/graphs/iface/${interfaceName}`;
                     alert("You clicked action on: " + url);
