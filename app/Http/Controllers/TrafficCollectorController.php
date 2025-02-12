@@ -30,7 +30,7 @@ class TrafficCollectorController extends Controller {
                 'intp'  => 'required|string|max:255', // Port type, string with a max length
                 'tx'    => 'required|integer|min:0', // TX bytes must be a positive integer
                 'rx'    => 'required|integer|min:0', // RX bytes must be a positive integer
-                'dt'    => 'required|date_format:Y-m-d H:i:s', // Ensure proper datetime format
+                'dt'    => 'required|string', // Ensure proper datetime format
             ]);
 
             // Extract validated data
@@ -38,14 +38,20 @@ class TrafficCollectorController extends Controller {
             $intTypes  = $validatedData['intp'];
             $txBytes   = $validatedData['tx'];
             $rxBytes   = $validatedData['rx'];
-            $datetime  = Carbon::parse($validatedData['dt']); // Convert to Carbon instance
+            $dtInput  = $validatedData['dt']; // Convert to Carbon instance
 
+            // Convert dt format (Example: feb/12/2025 10:25:06 → 2025-02-12 10:25:06)
+            try {
+                $datetime = Carbon::createFromFormat('M/d/Y H:i:s', $dtInput);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid datetime format. Use: mmm/DD/YYYY H:m:s'], 422);
+            }
+            
             // Log data (optional)
-            Log::info("Traffic Data - ID_R: $idRouter, INT: $intTypes, TX: $txBytes, RX: $rxBytes, DT: $datetime");
+            // Log::info("Traffic Data - ID_R: $idRouter, INT: $intTypes, TX: $txBytes, RX: $rxBytes, DT: $datetime");
 
             // Define time conditions
             $thirtyDaysAgo = now()->subDays(30);
-            $today = now()->startOfDay();
 
             // Check if datetime is within the last 30 days
             if ($datetime->greaterThanOrEqualTo($thirtyDaysAgo)) {
@@ -54,7 +60,7 @@ class TrafficCollectorController extends Controller {
                     'int_type'  => $intTypes,
                     'tx_bytes'  => $txBytes,
                     'rx_bytes'  => $rxBytes,
-                    'datetime'  => $datetime,
+                    'datetime'  => $datetime->toDateTimeString(),
                     'timestamp' => now(),
                 ]);
             }
