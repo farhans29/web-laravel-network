@@ -38,13 +38,30 @@ class TrafficCollectorController extends Controller {
             $intTypes  = $validatedData['intp'];
             $txBytes   = $validatedData['tx'];
             $rxBytes   = $validatedData['rx'];
-            $dtInput  = $validatedData['dt']; // Convert to Carbon instance
+            // $dtInput  = $validatedData['dt']; // Convert to Carbon instance
+            // $dtInput = ucwords(trim($validatedData['dt']));
+            $dtInput = urldecode($validatedData['dt']);
 
-            // Convert dt format (Example: feb/12/2025 10:25:06 → 2025-02-12 10:25:06)
+            // ✅ Try parsing the datetime
             try {
+                // $datetime = Carbon::createFromFormat('M/d/Y H:i:s', $dtInput);
                 $datetime = Carbon::createFromFormat('M/d/Y H:i:s', $dtInput);
+
+                // ✅ Check if time is between 00:00:00 and 12:00:00
+                if ($datetime->hour < 12) {
+                    $datetime->subDay(); // Subtract one day
+                    Log::info("Date adjusted to previous day and stored", ['adjusted_datetime' => $datetime->toDateTimeString()]);
+                }
+
             } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid datetime format. Use: mmm/DD/YYYY H:m:s'], 422);
+                Log::error("Invalid datetime format", [
+                    'received' => $dtInput, 
+                    'expected_format' => 'M/d/Y H:i:s'
+                ]);
+                return response()->json([
+                    'error' => 'Invalid datetime format. Expected: mmm/DD/YYYY H:m:s',
+                    'received' => $dtInput
+                ], 422);
             }
             
             // Log data (optional)
@@ -88,10 +105,11 @@ class TrafficCollectorController extends Controller {
 
             return response()->json(['message' => 'Data received successfully'], 200);
         } catch (ValidationException $e) {
-        return response()->json(['error' => $e->getMessage()], 422);
+        return response()->json(['error' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error("Traffic Data Error: " . $e->getMessage());
             return response()->json(['error' => 'Something went wrong, please try again later'], 400);
+            // return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 
