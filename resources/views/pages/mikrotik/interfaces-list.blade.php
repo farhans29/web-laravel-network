@@ -135,28 +135,6 @@
                     statusBlock.textContent = "Partial Connection ⚠️";
                 }
 
-                // // Action button event listener
-                // $(".btn-action").on("click", function () {
-                //     let interfaceName = $(this).data("name");
-                //     let imageUrl = `/images/${interfaceName}.jpg`; // Adjust the path to where images are stored
-
-                //     $("#modalImage").attr("src", imageUrl);
-                //     $("#imageModal").removeClass("hidden");
-
-                //     console.log("Modal opened for:", interfaceName);
-                // });
-                
-                // $("#closeModal").on("click", function () {
-                //     $("#imageModal").addClass("hidden");
-                // });
-
-                // // Close modal if clicked outside
-                // $("#imageModal").on("click", function (event) {
-                //     if ($(event.target).is("#imageModal")) {
-                //         $("#imageModal").addClass("hidden");
-                //     }
-                // });
-
                 $(".btn-action").on("click", function () {
                     let interfaceName = $(this).data("name").replace(/ /g, "%20");
                     let routerIp = "{{ $router->ip }}"; // Blade syntax inside JavaScript
@@ -177,6 +155,30 @@
     </script>
 
     {{-- <script>
+        
+
+        // // Action button event listener
+        // $(".btn-action").on("click", function () {
+        //     let interfaceName = $(this).data("name");
+        //     let imageUrl = `/images/${interfaceName}.jpg`; // Adjust the path to where images are stored
+
+        //     $("#modalImage").attr("src", imageUrl);
+        //     $("#imageModal").removeClass("hidden");
+
+        //     console.log("Modal opened for:", interfaceName);
+        // });
+        
+        // $("#closeModal").on("click", function () {
+        //     $("#imageModal").addClass("hidden");
+        // });
+
+        // // Close modal if clicked outside
+        // $("#imageModal").on("click", function (event) {
+        //     if ($(event.target).is("#imageModal")) {
+        //         $("#imageModal").addClass("hidden");
+        //     }
+        // });
+
          $(document).ready(function () {
             $('#interface').DataTable({
                 responsive: true,
