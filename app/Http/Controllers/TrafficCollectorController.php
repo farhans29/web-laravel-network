@@ -138,21 +138,6 @@ class TrafficCollectorController extends Controller {
                 return response()->json(['error' => 'Unauthorized request'], 403);
             }
 
-            // Validate the incoming request
-            // $validatedData = $request->validate([
-            //     'idr'   => 'required|string', // Ensure it's a valid router ID
-            //     'intp'  => 'required|string|max:255', // Port type, string with a max length
-            //     'tx'    => 'required|integer|min:0', // TX bytes must be a positive integer
-            //     'rx'    => 'required|integer|min:0', // RX bytes must be a positive integer
-            //     'dt'    => 'required|string', // Ensure proper datetime format
-            // ]);
-
-            // Extract validated data
-            // $idRouter  = $validatedData['idr'];
-            // $intTypes  = $validatedData['intp'];
-            // $txBytes   = $validatedData['tx'];
-            // $rxBytes   = $validatedData['rx'];
-            // $dtInput = urldecode($validatedData['dt']);
             // Convert inputs to arrays if not already
             $idr = (array) $request->input('idr');
             $intp = (array) $request->input('intp');
@@ -184,7 +169,7 @@ class TrafficCollectorController extends Controller {
                 for ($i = 0; $i < $count; $i++) {
                     try {
                         $dtInput = urldecode($dt[$i]);
-                        $datetime = Carbon::createFromFormat('M/d/Y H:i:s', $dtInput);
+                        $datetime = Carbon::createFromFormat('Y-m-d H:i:s', $dtInput);
 
                         // Adjust time if before 12:00 PM
                         if ($datetime->hour < 12) {

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\MikrotikApiService;
+
+use Illuminate\Http\Request;
 use App\Models\Router;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class MikrotikController extends Controller
 {
@@ -119,5 +122,62 @@ class MikrotikController extends Controller
         dd($devices);
 
         return view('pages/mikrotik/devices-list', compact('devices', 'router'));
+    }
+
+
+    public function getUsageStats($routerId) {
+
+
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+
+        return view('pages/mikrotik/usage-stats', compact('router'));
+    }
+
+    public function getUsageStatsData(Request $request, $routerId) {
+        // Get month input from request
+        $filterMonth = $request->input('monthInput');
+        $monthNow = date('m');
+        $month = $filterMonth ?? $monthNow;
+
+        // Query usage statistics from `t_traffic_logs_daily`
+        $dataStats = DB::table('t_traffic_logs_daily')
+            ->selectRaw("
+                idrouter,
+                int_type,
+                tx_bytes as Upload,
+                rx_bytes as Download,
+                datetime as date
+            ")
+            ->where('idrouter', $routerId)
+            ->whereRaw("MONTH(datetime) = ?", [$month])
+            ->orderBy('datetime', 'asc') // Ensuring data is ordered by date
+            ->get();
+
+        // Prepare data for response
+        $labels = [];
+        $intType = [];
+        $uploadData = [];
+        $downloadData = [];
+
+        foreach ($dataStats as $entry) {
+            $labels[] = date('Y-m-d', strtotime($entry->date)); // Format date properly
+            $intType[] = $entry->int_type;
+            $uploadData[] = (int) $entry->Upload;
+            $downloadData[] = (int) $entry->Download;
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'int_type' => $intType,
+            'upload' => $uploadData,
+            'download' => $downloadData
+        ]);
+    }
+
+
+    public function getUsageStatsJson($routerId) {
+
     }
 }

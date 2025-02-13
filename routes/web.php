@@ -67,9 +67,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/interfaces/{routerId}', [MikrotikController::class, 'getInterfaces'])->name('mikrotik.interfaces');
         Route::get('/interfaces/getData', [MikrotikController::class, 'getInterfacesData'])->name('mikrotik.interfaces-data');  
         // Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json');  
-        Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');       
-    });
+        Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');
 
+        // get statistics data 
+        Route::get('/usage-stats/getData/{routerId}',[MikrotikController::class, 'getUsageStatsData'])->name('mikrotik.usage-stats.data');
+        // display the page
+        Route::get('/usage-stats/{routerId}',[MikrotikController::class, 'getUsageStats'])->name('mikrotik.usage-stats');
+    });
 
     // SalesOrders
     Route::prefix('sales')->group(function () {
