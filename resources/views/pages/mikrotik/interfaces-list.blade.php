@@ -46,14 +46,18 @@
 
     @include('components.modal-interface-image')
     @section('js-page')
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function () {
         let urlParts = window.location.pathname.split("/");
         let routerId = urlParts[urlParts.length - 1]; // Get last segment
     
         $.ajax({
-            url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
+            // url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
+            // type: "GET",
+            // data: { idr: routerId }, // Dynamically set router ID
+            url: "{{ route('mikrotik.interfaces-data-json') }}", // Generate the route dynamically
             type: "GET",
-            data: { idr: routerId }, // Dynamically set router ID
+            data: { idr: routerId }, 
             success: function (response) {
                 let interfaces = response[0] || [];
                 let tableBody = "";
@@ -144,6 +148,8 @@
             alert("You clicked on " + interfaceName);
         });
     });
+    
+    </script>
     
 
     {{-- <script>
