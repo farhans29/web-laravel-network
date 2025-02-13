@@ -74,6 +74,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');   
         
         Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');    
+
+        // get statistics data 
+        Route::get('/usage-stats/getData/{routerId}',[MikrotikController::class, 'getUsageStatsData'])->name('mikrotik.usage-stats.data');
+        // display the page
+        Route::get('/usage-stats/{routerId}',[MikrotikController::class, 'getUsageStats'])->name('mikrotik.usage-stats');
     });
 
     // SalesOrders
