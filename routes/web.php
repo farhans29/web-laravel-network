@@ -63,12 +63,17 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Mikrotik API
     Route::prefix('mikrotik')->group(function () {
         Route::get('/routers', [MikrotikController::class, 'getAllRouters'])->name('mikrotik.routers');
-        Route::get('/interfaces/{routerId}', [MikrotikController::class, 'getInterfaces'])->name('mikrotik.interfaces');
-        Route::get('/interfaces/getData', [MikrotikController::class, 'getInterfacesData'])->name('mikrotik.interfaces-data');  
-        // Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json');  
-        Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');       
-    });
 
+        Route::get('/interface/{routerId}', [MikrotikController::class, 'getInterface'])->name('mikrotik.interface');
+        Route::get('/interfaces/{routerId}', [MikrotikController::class, 'getInterfaces'])->name('mikrotik.interfaces');
+        // Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json'); 
+        
+        Route::get('/device/{routerId}', [MikrotikController::class, 'getConnectedDevice'])->name('mikrotik.device');
+        Route::get('/devices/getData', [MikrotikController::class, 'getConnectedDevicesData'])->name('mikrotik.devices-data');  
+        Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');   
+        
+        Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');    
+    });
 
     // SalesOrders
     Route::prefix('sales')->group(function () {
