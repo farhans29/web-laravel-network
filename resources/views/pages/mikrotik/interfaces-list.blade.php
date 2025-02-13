@@ -46,14 +46,18 @@
 
     @include('components.modal-interface-image')
     @section('js-page')
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function () {
         let urlParts = window.location.pathname.split("/");
         let routerId = urlParts[urlParts.length - 1]; // Get last segment
     
         $.ajax({
-            url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
+            // url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
+            // type: "GET",
+            // data: { idr: routerId }, // Dynamically set router ID
+            url: "{{ route('mikrotik.interfaces-data-json') }}", // Generate the route dynamically
             type: "GET",
-            data: { idr: routerId }, // Dynamically set router ID
+            data: { idr: routerId }, 
             success: function (response) {
                 let interfaces = response[0] || [];
                 let tableBody = "";
@@ -140,10 +144,21 @@
     
         // ✅ Use event delegation to ensure buttons work after dynamic rendering
         $(document).on("click", ".btn-action", function () {
-            let interfaceName = $(this).data("name");
-            alert("You clicked on " + interfaceName);
+            // let interfaceName = $(this).data("name");
+            let interfaceName = $(this).data("name").replace(/ /g, "%20");
+            let routerIp = "{{ $router->ip }}"; // Blade syntax inside JavaScript
+            let routerPort = "{{ $router->web_port }}"; // Ensure these values are set in the controller
+            // alert("You clicked action on: " + interfaceName + " " + routerIp + " " + routerPort);
+            // alert("You clicked on " + interfaceName);
+
+            let url = `http://${routerIp}:${routerPort}/graphs/iface/${interfaceName}`;
+            // alert("You clicked action on: " + url);
+
+            window.open(url, "_blank");
         });
     });
+    
+    </script>
     
 
     {{-- <script>
