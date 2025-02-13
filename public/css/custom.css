@@ -1,0 +1,18 @@
+.fixed-column {
+    width: 120px !important; /* Set a fixed width (adjust as needed) */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Show "..." for overflow */
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+.text-right {
+    text-align: right !important;
+}

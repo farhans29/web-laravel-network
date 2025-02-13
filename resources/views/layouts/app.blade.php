@@ -7,7 +7,8 @@
         <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
         <title>{{ $CRM_ISS->nilai }}</title>
 
-
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
         <!-- style -->
         <link rel="stylesheet" href="/resources/css/mystyle.css">
         <!-- Fonts -->
