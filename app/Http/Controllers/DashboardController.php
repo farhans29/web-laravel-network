@@ -30,9 +30,9 @@
             $tomorrow = date('Y-m-d', strtotime($today . "+1 days"));
             $tomorrow5days = date('Y-m-d', strtotime($today . "+5 days"));
 
-            $dataRouter = Router::where('idusergrouping', $groupId);
+            $dataRouter = Router::where('idusergrouping', $groupId)->get();
 
-            // dd($dataFeed);
+            // dd($dataRouter);
 
             return view('pages/dashboard/dashboard', compact('dataFeed', 'dataRouter'));
         }

@@ -110,27 +110,25 @@
         
         <!-- Cards -->
         <div class="grid grid-cols-12 gap-6">
-
-            <!-- Card (Recent Activity) -->
-            {{-- <x-dashboard.dashboard-card-10 /> --}}
-            <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200" >
-                <header class="px-5 py-4 border-b border-slate-100">
-                    <h2 class="font-semibold text-slate-800">Upcoming Product Offering</h2>
-                </header>
-                <div class="p-3">
-            
-                    <!-- Card content -->
-                    <!-- "Today" group -->
-                    <div class="grow" width="100" height="100">
-                        <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-2">Router 1</header>
-                        <ul class="my-1">
-                            <!-- Item -->
-                            <img class="object-cover object-center w-full h-full" src="http://103.113.78.58:8383/graphs/iface/bridge/daily.gif?{{ time() }}" alt="Daily Graph">
-                        </ul>
+            @foreach ($dataRouter as $router)
+                <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
+                    <header class="px-5 py-4 border-b border-slate-100">
+                        <h2 class="font-semibold text-slate-800">{{ $router->name }}</h2>
+                    </header>
+                    <div class="p-3">
+                        <div class="grow">
+                            <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-2">
+                                {{ $router->idrouter }} - {{ $router->type }}
+                            </header>
+                            <ul class="my-1">
+                                <img class="object-cover object-center w-full h-full"
+                                    src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/daily.gif?{{ time() }}" 
+                                    alt="Daily Graph">
+                            </ul>
+                        </div>
                     </div>
-            
                 </div>
-            </div>
+            @endforeach
         </div>
 
     </div>
