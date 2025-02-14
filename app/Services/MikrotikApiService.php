@@ -20,8 +20,9 @@ class MikrotikApiService
             ]);
             return $client;
         } catch (\Exception $e) {
-            dd($host, $username, $password, $port, $e->getMessage());
-            return false;
+            // dd($host, $username, $password, $port, $e->getMessage());
+            dd($host,$e->getMessage());
+            // return false;
         }
     }
 
