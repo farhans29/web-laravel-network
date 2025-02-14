@@ -96,7 +96,7 @@
                                 <td class="text-center">${item.running === "true" ? "Running" : "Stopped"}</td>
                                 <td class="text-center">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
                                 <td class="text-center flex justify-center items-center">
-                                    <button class="btn btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
+                                    <button class="btn-action btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
                                         style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;" 
                                         data-name="${item.name}">
                                         📈 <span class="ml-2">View MRTG</span>

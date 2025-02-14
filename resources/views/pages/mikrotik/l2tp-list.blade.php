@@ -92,7 +92,7 @@
                                 <td class="text-center">${item["caller-id"]}</td>
                                 <td class="text-center">${item["uptime"]}</td>
                                 <td class="text-center flex justify-center items-center">
-                                    <button class="btn btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
+                                    <button class="btn-action btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
                                         style="background-color: rgb(239, 68, 68); transition: background-color 0.3s ease-in-out;" 
                                         data-name="${item.name}">
                                         ❌ <span class="ml-2">Disconnect User</span>
