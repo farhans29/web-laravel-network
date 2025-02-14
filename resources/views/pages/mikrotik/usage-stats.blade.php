@@ -36,9 +36,13 @@
                         <input type="month" id="monthInput" name="monthInput" class="mt-1 p-2 border border-gray-300 rounded-md">
                     </form>
                     <!-- Chart container -->
-                    <div class="relative w-[1000px] h-[350px] bg-gray-50 rounded-lg shadow-md flex items-center justify-center">
+                    {{-- <div class="relative w-[1000px] h-[350px] bg-gray-50 rounded-lg shadow-md flex items-center justify-center">
                         <canvas id="usageStatsChart" class="w-full h-full"></canvas>
+                    </div> --}}
+                    <div id="chartsContainer" class="space-y-6">
+                        <!-- The chart will be provided here -->
                     </div>
+
                 </div>
             </div>
         </div>
@@ -50,133 +54,136 @@
     
     <script>
     $(document).ready(function () {
-        let urlParts = window.location.pathname.split("/");
-        let routerId = urlParts[urlParts.length - 1]; // Extract router ID from URL
+            let urlParts = window.location.pathname.split("/");
+            let routerId = urlParts[urlParts.length - 1]; // Extract router ID from URL
 
-        let ctx = document.getElementById("usageStatsChart").getContext("2d");
-        let usageChart;
-        
-        function fetchUsageStats(month = null) {
-    let requestUrl = "{{ route('mikrotik.usage-stats.data', ':routerId') }}".replace(':routerId', routerId);
+            function fetchUsageStats(month = null) {
+                let requestUrl = "{{ route('mikrotik.usage-stats.data', ':routerId') }}".replace(':routerId', routerId);
 
-    $.ajax({
-        url: requestUrl,
-        type: "GET",
-        data: { monthInput: month },    
-        success: function (response) {
-            if (!response || !response.labels || !response.upload || !response.download) {
-                console.error("Invalid response format:", response);
-                return;
-            }
-
-            let selectedDate = month ? new Date(month + "-01") : new Date();
-            let year = selectedDate.getFullYear();
-            let monthIndex = selectedDate.getMonth() + 1; // Ensure 1-based month (Jan = 1)
-            let lastDay = new Date(year, monthIndex, 0).getDate(); // Get last day of the month
-
-            // Generate array of dates (1 - 30/31)
-            let dateLabels = Array.from({ length: lastDay }, (_, i) => (i + 1).toString());
-
-            // Initialize dataset arrays with 0 values
-            let uploadData = new Array(lastDay).fill(0);
-            let downloadData = new Array(lastDay).fill(0);
-
-            // Map the response data into the correct day slots
-            response.labels.forEach((dateString, index) => {
-                let day = parseInt(dateString.split('-')[2]); // Extract day from "YYYY-MM-DD"
-                if (!isNaN(day) && day >= 1 && day <= lastDay) {
-                    uploadData[day - 1] = response.upload[index] || 0;
-                    downloadData[day - 1] = response.download[index] || 0;
-                }
-            });
-
-            let canvas = document.getElementById("usageStatsChart");
-            if (!canvas) {
-                console.error("Canvas element not found");
-                return;
-            }
-
-            let ctx = canvas.getContext("2d");
-
-            if (usageChart) {
-                usageChart.destroy();
-            }
-
-            usageChart = new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels: dateLabels, // Set date labels (1 - 30/31)
-                    datasets: [
-                        {
-                            label: "Upload (Bytes)",
-                            data: uploadData,
-                            backgroundColor: "rgba(54, 162, 235, 0.7)",
-                            borderColor: "rgba(54, 162, 235, 1)",
-                            borderWidth: 1
-                        },
-                        {
-                            label: "Download (Bytes)",
-                            data: downloadData,
-                            backgroundColor: "rgba(255, 99, 132, 0.7)",
-                            borderColor: "rgba(255, 99, 132, 1)",
-                            borderWidth: 1
+                $.ajax({
+                    url: requestUrl,
+                    type: "GET",
+                    data: { monthInput: month },
+                    success: function (response) {
+                        if (!response || !response.labels || !response.upload || !response.download || !response.int_type) {
+                            console.error("Invalid response format:", response);
+                            return;
                         }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Allow chart to fit container
-                    layout: {
-                        padding: 5 // Reduce padding
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: "top"
+
+                        // Clear previous charts
+                        $("#chartsContainer").empty();
+
+                        // Generate X-axis labels (30 days back to 7 days ahead)
+                        let today = new Date();
+                        let startDate = new Date(today);
+                        startDate.setDate(startDate.getDate() - 30);
+                        let endDate = new Date(today);
+                        endDate.setDate(endDate.getDate() + 7);
+
+                        let dateLabels = [];
+                        let dateMap = {}; // Store for quick lookup
+
+                        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                            let formattedDate = d.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+                            dateLabels.push(formattedDate);
+                            dateMap[formattedDate] = { upload: 0, download: 0 };
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                font: { size: 10 }, // Smaller font
-                                callback: function (value) {
-                                    if (value < 1024) return value + "B";
-                                    let kb = value / 1024;
-                                    if (kb < 1024) return kb.toFixed(1) + " KB";
-                                    let mb = kb / 1024;
-                                    if (mb < 1024) return mb.toFixed(1) + " MB";
-                                    let gb = mb / 1024;
-                                    return gb.toFixed(1) + " GB";
+
+                        // Get unique interfaces
+                        let uniqueInterfaces = [...new Set(response.int_type)];
+
+                        uniqueInterfaces.forEach((interfaceName) => {
+                            // Create container
+                            let chartDiv = $(`
+                                <div class="relative w-[1000px] h-[350px] bg-gray-50 rounded-lg shadow-md p-4">
+                                    <h3 class="text-lg font-semibold text-center mb-2">${interfaceName}</h3>
+                                    <canvas id="chart_${interfaceName.replace(/[^a-zA-Z0-9]/g, '_')}"></canvas>
+                                </div>
+                            `);
+                            $("#chartsContainer").append(chartDiv);
+
+                            // Filter API data for this interface
+                            response.labels.forEach((apiDate, index) => {
+                                let formattedDate = apiDate.split(" ")[0]; // Extract only YYYY-MM-DD
+                                if (response.int_type[index] === interfaceName && dateMap[formattedDate]) {
+                                    dateMap[formattedDate].upload += response.upload[index];
+                                    dateMap[formattedDate].download += response.download[index];
                                 }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: { size: 10 }
-                            }
-                        }
+                            });
+
+                            // Extract final dataset
+                            let uploadData = dateLabels.map(date => dateMap[date].upload);
+                            let downloadData = dateLabels.map(date => dateMap[date].download);
+
+                            // Create chart
+                            new Chart(document.getElementById(`chart_${interfaceName.replace(/[^a-zA-Z0-9]/g, '_')}`).getContext("2d"), {
+                                type: "bar",
+                                data: {
+                                    labels: dateLabels,
+                                    datasets: [
+                                        {
+                                            label: "Upload (Bytes)",
+                                            data: uploadData,
+                                            backgroundColor: "rgba(54, 162, 235, 0.7)",
+                                            borderColor: "rgba(54, 162, 235, 1)",
+                                            borderWidth: 1
+                                        },
+                                        {
+                                            label: "Download (Bytes)",
+                                            data: downloadData,
+                                            backgroundColor: "rgba(255, 99, 132, 0.7)",
+                                            borderColor: "rgba(255, 99, 132, 1)",
+                                            borderWidth: 1
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        x: {
+                                            ticks: {
+                                                autoSkip: true,
+                                                maxTicksLimit: 10 // Show fewer labels to avoid clutter
+                                            }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                callback: function (value) {
+                                                    if (value < 1024) return value + "B";
+                                                    let kb = value / 1024;
+                                                    if (kb < 1024) return kb.toFixed(1) + " KB";
+                                                    let mb = kb / 1024;
+                                                    if (mb < 1024) return mb.toFixed(1) + " MB";
+                                                    let gb = mb / 1024;
+                                                    return gb.toFixed(1) + " GB";
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching data:", error);
                     }
-                }
+                });
+            }
+
+            // Initial fetch
+            let urlParams = new URLSearchParams(window.location.search);
+            let initialMonth = urlParams.get("monthInput") || null;
+            fetchUsageStats(initialMonth);
+
+            // Fetch new data when month changes
+            $("#monthInput").on("change", function () {
+                let selectedMonth = $(this).val();
+                fetchUsageStats(selectedMonth);
             });
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching data:", error);
-        }
-    });
-}
-
-        // Initial fetch
-        let urlParams = new URLSearchParams(window.location.search);
-        let initialMonth = urlParams.get("monthInput") || null;
-        fetchUsageStats(initialMonth);
-
-        // Fetch new data when month changes
-        $("#monthInput").on("change", function () {
-            let selectedMonth = $(this).val();
-            fetchUsageStats(selectedMonth);
         });
-    });
+
     </script>
 
     @endsection
