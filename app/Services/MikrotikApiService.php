@@ -4,6 +4,8 @@ namespace App\Services;
 
 use RouterOS\Client;
 use RouterOS\Query;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Expr\Cast;
 
 class MikrotikApiService
 {
@@ -14,10 +16,11 @@ class MikrotikApiService
                 'host' => $host,
                 'user' => $username,
                 'pass' => $password,
-                'port' => $port, // Change to 8729 for SSL, 8728 for Default
+                'port' => (int) $port, // Change to 8729 for SSL, 8728 for Default
             ]);
             return $client;
         } catch (\Exception $e) {
+            dd($host, $username, $password, $port, $e->getMessage());
             return false;
         }
     }
