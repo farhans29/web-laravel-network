@@ -14,17 +14,9 @@
                 </h1>
             </div>
         </div>
-
-        <!-- label -->
-        <div class="flex flex-row text-xs mb-3">
-        </div>
-        
-        <div id="statusContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
-        <!-- Status boxes will be dynamically added here -->
-        </div>
         
         <!-- Chart -->
-        <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
+        {{-- <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
             <header class="px-5 py-4 border-b border-slate-100">
                 <h2 class="font-semibold text-slate-800">{{ 'Router 1 ' }}</h2>
             </header>
@@ -36,16 +28,29 @@
                         <input type="month" id="monthInput" name="monthInput" class="mt-1 p-2 border border-gray-300 rounded-md">
                     </form>
                     <!-- Chart container -->
-                    {{-- <div class="relative w-[1000px] h-[350px] bg-gray-50 rounded-lg shadow-md flex items-center justify-center">
-                        <canvas id="usageStatsChart" class="w-full h-full"></canvas>
-                    </div> --}}
                     <div id="chartsContainer" class="space-y-6">
                         <!-- The chart will be provided here -->
                     </div>
 
                 </div>
             </div>
+        </div> --}}
+        <!-- Chart Container -->
+        <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
+            <div class="p-3">
+                {{-- <form id="monthForm" class="mb-3">
+                    <label for="monthInput" class="block text-sm font-medium text-gray-700">Month</label>
+                    <input disabled type="month" id="monthInput" name="monthInput" class="mt-1 p-2 border border-gray-300 rounded-md">
+                </form> --}}
+                <!-- Container for charts -->
+                <div id="chartsContainer" class="space-y-6">
+                    <!-- Dynamic charts will be added here -->
+                </div>
+            </div>
         </div>
+
+
+        
     </div>
 
     @include('components.modal-interface-image')
@@ -55,7 +60,7 @@
     <script>
     $(document).ready(function () {
             let urlParts = window.location.pathname.split("/");
-            let routerId = urlParts[urlParts.length - 1]; // Extract router ID from URL
+            let routerId = urlParts[urlParts.length - 1]; 
 
             function fetchUsageStats(month = null) {
                 let requestUrl = "{{ route('mikrotik.usage-stats.data', ':routerId') }}".replace(':routerId', routerId);
@@ -65,72 +70,71 @@
                     type: "GET",
                     data: { monthInput: month },
                     success: function (response) {
+
+                        let chartsContainer = $("#chartsContainer");
+                        chartsContainer.empty(); // Clear previous charts
+                        
+                        let groupedData = {};
                         if (!response || !response.labels || !response.upload || !response.download || !response.int_type) {
                             console.error("Invalid response format:", response);
                             return;
                         }
-
-                        // Clear previous charts
-                        $("#chartsContainer").empty();
-
-                        // Generate X-axis labels (30 days back to 7 days ahead)
-                        let today = new Date();
-                        let startDate = new Date(today);
-                        startDate.setDate(startDate.getDate() - 30);
-                        let endDate = new Date(today);
-                        endDate.setDate(endDate.getDate() + 7);
-
-                        let dateLabels = [];
-                        let dateMap = {}; // Store for quick lookup
-
-                        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-                            let formattedDate = d.toISOString().split("T")[0]; // Format: YYYY-MM-DD
-                            dateLabels.push(formattedDate);
-                            dateMap[formattedDate] = { upload: 0, download: 0 };
-                        }
-
-                        // Get unique interfaces
-                        let uniqueInterfaces = [...new Set(response.int_type)];
-
-                        uniqueInterfaces.forEach((interfaceName) => {
-                            // Create container
-                            let chartDiv = $(`
-                                <div class="relative w-[1000px] h-[350px] bg-gray-50 rounded-lg shadow-md p-4">
-                                    <h3 class="text-lg font-semibold text-center mb-2">${interfaceName}</h3>
-                                    <canvas id="chart_${interfaceName.replace(/[^a-zA-Z0-9]/g, '_')}"></canvas>
+                         if (!response.labels.length) {
+                            // If no data, show a message
+                            chartsContainer.html(`
+                                <div class="p-4 bg-gray-100 text-center text-gray-500 rounded-md">
+                                    No usage data available for the selected month.
                                 </div>
                             `);
-                            $("#chartsContainer").append(chartDiv);
+                            return;
+                        }
+                        // Group data by interface type
+                        response.labels.forEach((dateString, index) => {
+                            let intType = response.int_type[index];
+                            if (!groupedData[intType]) {
+                                groupedData[intType] = { labels: [], upload: [], download: [] };
+                            }
+                            groupedData[intType].labels.push(dateString);
+                            groupedData[intType].upload.push(response.upload[index] || 0);
+                            groupedData[intType].download.push(response.download[index] || 0);
+                        });
 
-                            // Filter API data for this interface
-                            response.labels.forEach((apiDate, index) => {
-                                let formattedDate = apiDate.split(" ")[0]; // Extract only YYYY-MM-DD
-                                if (response.int_type[index] === interfaceName && dateMap[formattedDate]) {
-                                    dateMap[formattedDate].upload += response.upload[index];
-                                    dateMap[formattedDate].download += response.download[index];
-                                }
-                            });
+                        // Loop through each interface and create a chart
+                        Object.keys(groupedData).forEach((intType) => {
+                            let uniqueId = "usageStatsChart_" + intType.replace(/\s+/g, "_"); 
 
-                            // Extract final dataset
-                            let uploadData = dateLabels.map(date => dateMap[date].upload);
-                            let downloadData = dateLabels.map(date => dateMap[date].download);
+                            let cardHtml = `
+                                <div class="flex flex-col bg-white shadow-lg rounded-sm border border-slate-200">
+                                    <header class="px-5 py-4 border-b border-slate-100">
+                                        <h2 class="font-semibold text-slate-800">${intType}</h2>
+                                    </header>
+                                    <div class="p-3">
+                                        <div class="relative w-full h-[350px] bg-gray-50 rounded-lg shadow-md flex items-center justify-center">
+                                            <canvas id="${uniqueId}" class="w-full h-full"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            chartsContainer.append(cardHtml);
 
-                            // Create chart
-                            new Chart(document.getElementById(`chart_${interfaceName.replace(/[^a-zA-Z0-9]/g, '_')}`).getContext("2d"), {
+                            // Create chart for this interface
+                            let ctx = document.getElementById(uniqueId).getContext("2d");
+                            new Chart(ctx, {
                                 type: "bar",
                                 data: {
-                                    labels: dateLabels,
+                                    labels: groupedData[intType].labels,
                                     datasets: [
                                         {
                                             label: "Upload (Bytes)",
-                                            data: uploadData,
+                                            data: groupedData[intType].upload,
                                             backgroundColor: "rgba(54, 162, 235, 0.7)",
                                             borderColor: "rgba(54, 162, 235, 1)",
                                             borderWidth: 1
                                         },
                                         {
                                             label: "Download (Bytes)",
-                                            data: downloadData,
+                                            data: groupedData[intType].download,
                                             backgroundColor: "rgba(255, 99, 132, 0.7)",
                                             borderColor: "rgba(255, 99, 132, 1)",
                                             borderWidth: 1
@@ -140,13 +144,13 @@
                                 options: {
                                     responsive: true,
                                     maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: "top"
+                                        }
+                                    },
                                     scales: {
-                                        x: {
-                                            ticks: {
-                                                autoSkip: true,
-                                                maxTicksLimit: 10 // Show fewer labels to avoid clutter
-                                            }
-                                        },
                                         y: {
                                             beginAtZero: true,
                                             ticks: {
@@ -183,7 +187,6 @@
                 fetchUsageStats(selectedMonth);
             });
         });
-
     </script>
 
     @endsection
