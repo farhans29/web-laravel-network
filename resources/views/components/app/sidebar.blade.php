@@ -105,7 +105,7 @@
                                 </li>
                                 <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
-                                        @if (Route::is('mikrotik.lt2p') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
+                                        @if (Route::is('mikrotik.l2tp') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
                                         href="{{ route('mikrotik.l2tp', ['routerId' => $router->idrouter]) }}">
                                         <span class="text-sm font-medium duration-200">VPN Connected Devices</span>  
                                     </a>

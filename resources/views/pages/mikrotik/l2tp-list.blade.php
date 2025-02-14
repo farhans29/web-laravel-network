@@ -18,9 +18,9 @@
         <div class="flex flex-row text-xs mb-3">
         </div>
         
-        <div id="statusContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+        {{-- <div id="statusContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
         <!-- Status boxes will be dynamically added here -->
-        </div>
+        </div> --}}
 
         <!-- Table -->
         <div class="table-responsive">
@@ -46,113 +46,140 @@
     @section('js-page')
     <script>
         $(document).ready(function () {
-        let urlParts = window.location.pathname.split("/");
-        let routerId = urlParts[urlParts.length - 1]; // Get last segment
-    
-        $.ajax({
-            // url: "http://network.integrated-os.cloud/mikrotik/interfaces/getDataJson/?idr=1",
-            // type: "GET",
-            // data: { idr: routerId }, // Dynamically set router ID
-            url: "{{ route('mikrotik.l2tp-data-json') }}", // Generate the route dynamically
-            type: "GET",
-            data: { idr: routerId }, 
-            success: function (response) {
-                let interfaces = response[0] || [];
-                let tableBody = "";
-                let statusContainer = document.getElementById("statusContainer");
-    
-                let runningCount = 0;  // ✅ Initialize runningCount
-                let enabledCount = 0;  // ✅ Initialize enabledCount
-    
-                interfaces.forEach(function (item) {
-                    let rowColor = "background-color: #e0e0e0;";
-                    let statusColor = "#6c757d";
-                    let statusText = "Unknown";
-    
-                    if (item.running === "true" && item.disabled === "false") {
-                        rowColor = 'background-color: #d4edda;';
-                        statusColor = "#28a745";
-                        statusText = "Running ✅";
-                        runningCount++;  // ✅ Count running interfaces
-                        enabledCount++;
-                    } else if (item.running === "false" && item.disabled === "false") {
-                        rowColor = 'background-color: #f5848e;';
-                        statusColor = "#dc3545";
-                        statusText = "Stopped ❌";
-                        enabledCount++;
-                    } else if (item.disabled === "true") {
-                        statusColor = "#6c757d";
-                        statusText = "Disabled ⚠️";
-                    }
-    
-                    let statusBox = document.createElement("div");
-                    statusBox.className = "p-2 text-white font-semibold text-xs text-center rounded-md shadow-sm";
-                    statusBox.style.backgroundColor = statusColor;
-                    statusBox.innerHTML = `<span>${item.name}</span><br><small>${statusText}</small>`;
-                    statusContainer.appendChild(statusBox);
-    
-                    tableBody += `
-                        <tr style="${rowColor}">
-                            <td>${item.name}</td>
-                            <td>${item["service"]}</td>
-                            <td>${item["caller-id"]}</td>
-                            <td>${item["uptime"]}</td>
-                            <td>
-                                <button class="btn-action" data-name="${item.name}">
-                                    Disconnect User
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-    
-                $("#interfaceTable tbody").html(tableBody);
-    
-                $("#interfaceTable").DataTable({
-                    paging: true,
-                    searching: true,
-                    ordering: true,
-                    lengthMenu: [[20, 25, 50, 100], [20, 25, 50, 100]],
-                    layout: {
-                        topStart: 'info',
-                        bottom: 'paging',
-                        bottomStart: null,
-                        bottomEnd: null
-                    }
-                });
-    
-                let statusBlock = document.getElementById("statusBlock");
-                if (runningCount === interfaces.length && enabledCount === interfaces.length) {
-                    statusBlock.style.backgroundColor = "#28a745";
-                    statusBlock.textContent = "All Interfaces Operational ✅";
-                } else if (enabledCount > 0 && runningCount === 0) {
-                    statusBlock.style.backgroundColor = "#dc3545";
-                    statusBlock.textContent = "All Interfaces Stopped ❌";
-                } else {
-                    statusBlock.style.backgroundColor = "#6c757d";
-                    statusBlock.textContent = "Partial Connection ⚠️";
+            let urlParts = window.location.pathname.split("/");
+            let routerId = urlParts[urlParts.length - 1]; // Get last segment
+
+            let requestUrl = "{{ route('mikrotik.l2tp-data-json') }}"; // Laravel route
+            let fullUrl = `${requestUrl}?idr=${routerId}`; // Append router ID dynamically
+
+            fetchInterfacesForTable(fullUrl);
+            // fetchInterfacesForStatus(fullUrl);
+
+            // // ✅ Event delegation for dynamic button clicks
+            // $(document).on("click", ".btn-action", function () {
+            //     let interfaceName = $(this).data("name").replace(/ /g, "%20");
+            //     let routerIp = "{{ $router->ip }}"; // Ensure this value is passed correctly
+            //     let routerPort = "{{ $router->web_port }}"; 
+
+            //     let url = `http://${routerIp}:${routerPort}/graphs/iface/${interfaceName}`;
+            //     window.open(url, "_blank");
+            // });
+        });
+
+        /**
+         * Fetch interfaces data for the DataTable
+         */
+        function fetchInterfacesForTable(url) {
+            $.ajax({
+                url: url,
+                type: "GET",
+                success: function (response) {
+                    let interfaces = response[0] || [];
+                    let tableBody = "";
+
+                    interfaces.forEach(function (item) {
+                        let rowColor = "background-color: #e0e0e0;";
+                        if (item.running === "true" && item.disabled === "false") {
+                            rowColor = 'background-color: #d4edda;'; // Green for Running
+                        } else if (item.running === "false" && item.disabled === "false") {
+                            rowColor = 'background-color: #f5848e;'; // Red for Stopped
+                        }
+
+                        tableBody += `
+                            <tr style="${rowColor}">
+                                <td>${item.name}</td>
+                                <td>${item["service"]}</td>
+                                <td>${item["caller-id"]}</td>
+                                <td>${item["uptime"]}</td>
+                                <td>
+                                    <button class="btn-action" data-name="${item.name}">
+                                        Disconnect User
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    $("#interfaceTable tbody").html(tableBody);
+                    $("#interfaceTable").DataTable({
+                        paging: true,
+                        searching: true,
+                        ordering: true,
+                        lengthMenu: [[20, 25, 50, 100], [20, 25, 50, 100]],
+                        layout: {
+                            topStart: 'info',
+                            bottom: 'paging',
+                            bottomStart: null,
+                            bottomEnd: null
+                        }
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching DataTable data:", error);
                 }
-            },
-            error: function (xhr, status, error) {
-                console.error("Error fetching data:", error);
-            }
-        });
-    
-        // ✅ Use event delegation to ensure buttons work after dynamic rendering
-        $(document).on("click", ".btn-action", function () {
-            // let interfaceName = $(this).data("name");
-            let interfaceName = $(this).data("name").replace(/ /g, "%20");
-            let routerIp = "{{ $router->ip }}"; // Blade syntax inside JavaScript
-            let routerPort = "{{ $router->web_port }}"; // Ensure these values are set in the controller
-            // alert("You clicked action on: " + interfaceName + " " + routerIp + " " + routerPort);
-            // alert("You clicked on " + interfaceName);
+            });
+        }
 
-            let url = `http://${routerIp}:${routerPort}/graphs/iface/${interfaceName}`;
-            // alert("You clicked action on: " + url);
+        /**
+         * Fetch interfaces data for statusContainer
+         */
+        // function fetchInterfacesForStatus(url) {
+        //     $.ajax({
+        //         url: url,
+        //         type: "GET",
+        //         success: function (response) {
+        //             let interfaces = response[0] || [];
+        //             let statusContainer = document.getElementById("statusContainer");
+        //             let statusBlock = document.getElementById("statusBlock");
 
-            window.open(url, "_blank");
-        });
-    });
+        //             statusContainer.innerHTML = ""; // Clear previous content
+
+        //             let runningCount = 0;
+        //             let enabledCount = 0;
+
+        //             interfaces.forEach(function (item) {
+        //                 let statusColor = "#6c757d";
+        //                 let statusText = "Unknown";
+
+        //                 if (item.running === "true" && item.disabled === "false") {
+        //                     statusColor = "#28a745"; // Green
+        //                     statusText = "Running ✅";
+        //                     runningCount++;
+        //                     enabledCount++;
+        //                 } else if (item.running === "false" && item.disabled === "false") {
+        //                     statusColor = "#dc3545"; // Red
+        //                     statusText = "Stopped ❌";
+        //                     enabledCount++;
+        //                 } else if (item.disabled === "true") {
+        //                     statusText = "Disabled ⚠️";
+        //                 }
+
+        //                 let statusBox = document.createElement("div");
+        //                 statusBox.className = "p-2 text-white font-semibold text-xs text-center rounded-md shadow-sm";
+        //                 statusBox.style.backgroundColor = statusColor;
+        //                 statusBox.innerHTML = `<span>${item.name}</span><br><small>${statusText}</small>`;
+        //                 statusContainer.appendChild(statusBox);
+        //             });
+
+        //             // Update statusBlock based on conditions
+        //             if (runningCount === interfaces.length && enabledCount === interfaces.length) {
+        //                 statusBlock.style.backgroundColor = "#28a745";
+        //                 statusBlock.textContent = "All Interfaces Operational ✅";
+        //             } else if (enabledCount > 0 && runningCount === 0) {
+        //                 statusBlock.style.backgroundColor = "#dc3545";
+        //                 statusBlock.textContent = "All Interfaces Stopped ❌";
+        //             } else {
+        //                 statusBlock.style.backgroundColor = "#6c757d";
+        //                 statusBlock.textContent = "Partial Connection ⚠️";
+        //             }
+        //         },
+        //         error: function (xhr, status, error) {
+        //             console.error("Error fetching statusContainer data:", error);
+        //         }
+        //     });
+        // }
+
+    </script>
     
     </script>
     
