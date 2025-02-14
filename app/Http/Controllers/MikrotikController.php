@@ -52,7 +52,7 @@ class MikrotikController extends Controller
         }
 
         // Connect to MikroTik
-        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
         if (!$client) {
             return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
         }
@@ -104,7 +104,7 @@ class MikrotikController extends Controller
         }
 
         // Connect to MikroTik
-        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
         if (!$client) {
             return response()->json(['error' => 'Failed to connect to MikroTik router.'], 500);
         }
@@ -225,7 +225,7 @@ class MikrotikController extends Controller
     {
         $router = Router::where('idrouter', $routerId)->first();
 
-        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
 
         if (!$client) {
             return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
@@ -241,7 +241,7 @@ class MikrotikController extends Controller
     {
         $router = Router::where('idrouter', $routerId)->first();
 
-        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
 
         if (!$client) {
             return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
@@ -259,7 +259,7 @@ class MikrotikController extends Controller
         $router = Router::where('idrouter', $routerId)->first();
     
         // Attempt to connect to the MikroTik router
-        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
     
         // If the connection fails, return an error message
         if (!$client) {
@@ -307,7 +307,7 @@ class MikrotikController extends Controller
         $router = Router::where('idrouter', $routerId)->first();
     
         // Attempt to connect to the MikroTik router
-        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
     
         // If the connection fails, return an error message
         if (!$client) {

@@ -7,14 +7,14 @@ use RouterOS\Query;
 
 class MikrotikApiService
 {
-    public function connect($host, $username, $password)
+    public function connect($host, $username, $password, $port)
     {
         try {
             $client = new Client([
                 'host' => $host,
                 'user' => $username,
                 'pass' => $password,
-                'port' => 8333, // Change to 8729 for SSL, 8728 for Default
+                'port' => $port, // Change to 8729 for SSL, 8728 for Default
             ]);
             return $client;
         } catch (\Exception $e) {
