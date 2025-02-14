@@ -66,4 +66,18 @@ class MikrotikApiService
         return $response;
     }
 
+    public function getPPP($client)
+    {
+        // Send query to RouterOS and parse response
+        $response = $client->query('/ppp/active/print')->read();
+        return $response;
+    }
+
+    public function getPPPSecrets($client)
+    {
+        // Send query to RouterOS and parse response
+        $response = $client->query('/ppp/secret/print')->read();
+        return $response;
+    }
+
 }

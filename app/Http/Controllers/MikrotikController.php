@@ -26,7 +26,7 @@ class MikrotikController extends Controller
         // Get router details from DB
         $router = Router::where('idrouter', $routerId)->first();
         // dd($router);
-
+        
         return view('pages/mikrotik/interfaces-list', compact('router'));
     }
 
@@ -35,6 +35,20 @@ class MikrotikController extends Controller
         // Get router details from DB
         $router = Router::where('idrouter', $routerId)->first();
         // dd($router);
+        
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
+        }
+
+        // Fetch interfaces
+        $interfaces = collect($this->mikrotikService->getInterfaces($client));
+        dd($interfaces);
 
         return view('pages/mikrotik/interfaces', compact('router'));
     }
@@ -346,6 +360,7 @@ class MikrotikController extends Controller
         }
     }
 
+    //Usage
     public function getUsageStats($routerId) {
 
 
@@ -402,4 +417,154 @@ class MikrotikController extends Controller
 
     }
     
+    //L2TP
+    public function getL2TP($routerId)
+    {        
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+        
+        return view('pages/mikrotik/l2tp-list', compact('router'));
+    }
+
+    public function getL2TPData($routerId)
+    {        
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+        
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
+        }
+
+        // Fetch interfaces
+        $interfaces = collect($this->mikrotikService->getPPP($client));
+        dd($interfaces);
+
+        return view('pages/mikrotik/interfaces', compact('router'));
+    }
+
+    public function getL2TPDataJson(Request $request)
+    {
+        
+        $validatedData = $request->validate([
+            'idr'   => 'required|string', // Ensure it's a valid router ID
+        ]);
+
+        // Check if the secret key is provided
+            // $providedKey = $request->input('key');
+            // if (!$providedKey || $providedKey !== $secretKey) {
+            //     return response()->json(['error' => 'Unauthorized request'], 403);
+            // }
+
+        // Extract validated data
+        $idRouter  = $validatedData['idr'];
+        
+        $routerId = $idRouter;
+        // $routerId = 2;
+        
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik router.'], 500);
+        }
+
+        // Fetch interfaces
+        $ppp = $this->mikrotikService->getPPP($client);
+
+        return response()->json([
+            // 'success' => true,
+            // 'data' => $ppp,
+            $ppp
+        ], 200);
+    }
+    
+    //PPP
+    public function getPPP($routerId)
+    {        
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+        
+        return view('pages/mikrotik/l2tp-user-list', compact('router'));
+    }
+
+    public function getPPPSecretsData($routerId)
+    {        
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+        
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
+        }
+
+        // Fetch interfaces
+        $interfaces = collect($this->mikrotikService->getPPPSecrets($client));
+        dd($interfaces);
+
+        return view('pages/mikrotik/interfaces', compact('router'));
+    }
+
+    public function getPPPSecretsDataJson(Request $request)
+    {
+        
+        $validatedData = $request->validate([
+            'idr'   => 'required|string', // Ensure it's a valid router ID
+        ]);
+
+        // Check if the secret key is provided
+            // $providedKey = $request->input('key');
+            // if (!$providedKey || $providedKey !== $secretKey) {
+            //     return response()->json(['error' => 'Unauthorized request'], 403);
+            // }
+
+        // Extract validated data
+        $idRouter  = $validatedData['idr'];
+        
+        $routerId = $idRouter;
+        // $routerId = 2;
+        
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik router.'], 500);
+        }
+
+        // Fetch interfaces
+        $ppp = $this->mikrotikService->getPPPSecrets($client);
+
+        return response()->json([
+            // 'success' => true,
+            // 'data' => $ppp,
+            $ppp
+        ], 200);
+    }
+
 }

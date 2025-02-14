@@ -41,8 +41,11 @@ Route::redirect('/', 'login');
 Route::get('/traffic-collector', [TrafficCollectorController::class, 'collectTrafficData']);
 Route::get('/traffic-collector-daily', [TrafficCollectorController::class, 'collectTrafficDataDaily']);
 
+// Json Data
 Route::prefix('mikrotik')->group(function () {
         Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json');  
+        Route::get('/l2tp/getDataJson', [MikrotikController::class, 'getL2TPDataJson'])->name('mikrotik.l2tp-data-json');  
+        Route::get('/ppp/getDataJson', [MikrotikController::class, 'getPPPSecretsDataJson'])->name('mikrotik.ppp-secrets-data-json');  
     });
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -63,17 +66,29 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // Mikrotik API
     Route::prefix('mikrotik')->group(function () {
+        //Router List
         Route::get('/routers', [MikrotikController::class, 'getAllRouters'])->name('mikrotik.routers');
 
+        //Interface List
         Route::get('/interface/{routerId}', [MikrotikController::class, 'getInterface'])->name('mikrotik.interface');
         Route::get('/interfaces/{routerId}', [MikrotikController::class, 'getInterfaces'])->name('mikrotik.interfaces');
         // Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json'); 
         
+        //Device List
         Route::get('/device/{routerId}', [MikrotikController::class, 'getConnectedDevice'])->name('mikrotik.device');
         Route::get('/devices/getData', [MikrotikController::class, 'getConnectedDevicesData'])->name('mikrotik.devices-data');  
         Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');   
         
-        Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');    
+        // Firewall List
+        Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');   
+        
+        // PPP List
+        Route::get('/l2tp/{routerId}', [MikrotikController::class, 'getL2TP'])->name('mikrotik.l2tp');    
+        Route::get('/l2tps/{routerId}', [MikrotikController::class, 'getL2TPData'])->name('mikrotik.l2tp-data');    
+
+        // PPP List
+        Route::get('/ppp/{routerId}', [MikrotikController::class, 'getPPP'])->name('mikrotik.ppp');    
+        Route::get('/ppps/{routerId}', [MikrotikController::class, 'getPPPSecretsData'])->name('mikrotik.ppp-data');    
 
         // get statistics data 
         Route::get('/usage-stats/getData/{routerId}',[MikrotikController::class, 'getUsageStatsData'])->name('mikrotik.usage-stats.data');

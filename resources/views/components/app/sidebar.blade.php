@@ -89,13 +89,6 @@
 
                             <!-- Submenu (List & New) -->
                             <ul class="pl-9 mt-1 hidden" :class="open ? '!block' : 'hidden'">
-                                {{-- <li class="mb-1 last:mb-0">
-                                    <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
-                                        @if (Route::is('mikrotik.interfaces') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
-                                        href="{{ route('mikrotik.interfaces', ['routerId' => $router->idrouter]) }}">
-                                        <span class="text-sm font-medium duration-200">Interfaces</span>
-                                    </a>
-                                </li> --}}
                                 <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
                                         @if (Route::is('mikrotik.devices') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
@@ -108,6 +101,20 @@
                                         @if (Route::is('mikrotik.usage-stats') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
                                         href="{{ route('mikrotik.usage-stats', ['routerId' => $router->idrouter]) }}">
                                         <span class="text-sm font-medium duration-200">Usage Statistics</span>  
+                                    </a>
+                                </li>
+                                <li class="mb-1 last:mb-0">
+                                    <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
+                                        @if (Route::is('mikrotik.lt2p') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
+                                        href="{{ route('mikrotik.l2tp', ['routerId' => $router->idrouter]) }}">
+                                        <span class="text-sm font-medium duration-200">VPN Connected Devices</span>  
+                                    </a>
+                                </li>
+                                <li class="mb-1 last:mb-0">
+                                    <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
+                                        @if (Route::is('mikrotik.ppp') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
+                                        href="{{ route('mikrotik.ppp', ['routerId' => $router->idrouter]) }}">
+                                        <span class="text-sm font-medium duration-200">VPN Register</span>  
                                     </a>
                                 </li>
                             </ul>
