@@ -48,7 +48,7 @@ class MikrotikController extends Controller
 
         // Fetch interfaces
         $interfaces = collect($this->mikrotikService->getInterfaces($client));
-        dd($interfaces);
+        // dd($interfaces);
 
         return view('pages/mikrotik/interfaces', compact('router'));
     }
@@ -246,7 +246,7 @@ class MikrotikController extends Controller
         }
 
         $devices = $this->mikrotikService->getDhcpLeases($client);
-        dd($devices);
+        // dd($devices);
 
         return view('pages/mikrotik/interfaces', compact('devices', 'router'));
     }
@@ -262,7 +262,7 @@ class MikrotikController extends Controller
         }
 
         $devices = $this->mikrotikService->getFirewallList($client);
-        dd($devices);
+        // dd($devices);
 
         return view('pages/mikrotik/interfaces', compact('devices', 'router'));
     }
@@ -445,7 +445,7 @@ class MikrotikController extends Controller
 
         // Fetch interfaces
         $interfaces = collect($this->mikrotikService->getPPP($client));
-        dd($interfaces);
+        // dd($interfaces);
 
         return view('pages/mikrotik/interfaces', compact('router'));
     }
@@ -520,7 +520,7 @@ class MikrotikController extends Controller
 
         // Fetch interfaces
         $interfaces = collect($this->mikrotikService->getPPPSecrets($client));
-        dd($interfaces);
+        // dd($interfaces);
 
         return view('pages/mikrotik/interfaces', compact('router'));
     }
