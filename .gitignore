@@ -17,3 +17,5 @@ yarn-error.log
 /.zip
 *.DS_Store
 *.zip
+.cursorrules
+.cursorignore
