@@ -65,8 +65,10 @@
                             
                             <!-- Router Name -->
                             <a class="block text-slate-200 hover:text-white truncate transition duration-150"
-                                href="#"
-                                @click.prevent="open = !open">
+                                {{-- href="#"
+                                @click.prevent="open = !open"> --}}
+                                href="{{ route('mikrotik.interfaces', ['routerId' => $router->idrouter]) }}"
+                                @click="sidebarExpanded ? open = !open : sidebarExpanded = true">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <svg class="shrink-0 h-6 w-6" viewBox="0 0 24 24">
