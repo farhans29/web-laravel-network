@@ -100,34 +100,26 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // Mikrotik API
     Route::prefix('support')->group(function () {
-        //Router List
-        Route::get('/tickets', [SupportController::class, 'getAllTickets'])->name('support.tickets');
+        // PAGES
+        Route::get('/tickets', [SupportController::class, 'allTicketsList'])->name('support.tickets.list');
+        Route::get('/tickets/create', [SupportController::class, 'creatTicket'])->name('support.tickets.create');
+        Route::get('/tickets/my', [SupportController::class, 'myTicketsList'])->name('support.tickets.my');
+        Route::get('/tickets/assigned', [SupportController::class, 'assignedTicketsList'])->name('support.tickets.assigned');
 
-        //Interface List
-        // Route::get('/interface/{routerId}', [MikrotikController::class, 'getInterface'])->name('mikrotik.interface');
-        // Route::get('/interfaces/{routerId}', [MikrotikController::class, 'getInterfaces'])->name('mikrotik.interfaces');
-        // // Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json'); 
-        
-        // //Device List
-        // Route::get('/device/{routerId}', [MikrotikController::class, 'getConnectedDevice'])->name('mikrotik.device');
-        // Route::get('/devices/getData', [MikrotikController::class, 'getConnectedDevicesData'])->name('mikrotik.devices-data');  
-        // Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');   
-        
-        // // Firewall List
-        // Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');   
-        
-        // // PPP List
-        // Route::get('/l2tp/{routerId}', [MikrotikController::class, 'getL2TP'])->name('mikrotik.l2tp');    
-        // Route::get('/l2tps/{routerId}', [MikrotikController::class, 'getL2TPData'])->name('mikrotik.l2tp-data');    
+        // GET API
+        Route::get('/tickets/getData', [SupportController::class, 'getAllTicketsData'])->name('support.tickets.allDatas');
+        Route::get('/tickets/getDataById/{id}', [SupportController::class, 'getTicketById'])->name('support.tickets.getById');
+        Route::get('/tickets/my/getData', [SupportController::class, 'getMyTicketsData'])->name('support.tickets.myDatas');
+        Route::get('/tickets/assigned/getData', [SupportController::class, 'getAssignedTicketsData'])->name('support.tickets.assignedDatas');
 
-        // // PPP List
-        // Route::get('/ppp/{routerId}', [MikrotikController::class, 'getPPP'])->name('mikrotik.ppp');    
-        // Route::get('/ppps/{routerId}', [MikrotikController::class, 'getPPPSecretsData'])->name('mikrotik.ppp-data');    
+        // POST API
+        Route::post('/tickets/create', [SupportController::class, 'createTicket'])->name('support.tickets.create');
 
-        // // get statistics data 
-        // Route::get('/usage-stats/getData/{routerId}',[MikrotikController::class, 'getUsageStatsData'])->name('mikrotik.usage-stats.data');
-        // // display the page
-        // Route::get('/usage-stats/{routerId}',[MikrotikController::class, 'getUsageStats'])->name('mikrotik.usage-stats');
+        // PUT API
+        Route::put('/tickets/update/{ticketId}', [SupportController::class, 'updateTicket'])->name('support.tickets.update');
+
+        // DELETE API
+        Route::delete('/tickets/delete/{ticketId}', [SupportController::class, 'deleteTicket'])->name('support.tickets.delete');
     });
 
     // SalesOrders

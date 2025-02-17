@@ -14,8 +14,66 @@ use Carbon\Carbon;
 
 class SupportController extends Controller
 {
-    public function getAllTickets()
+    // PAGES
+    public function allTicketsList()
     {
-        return view('pages/support/support-tickets');
+
+        return view('pages/support/all-tickets');
     }
+
+    public function creatTicket()
+    {
+        return view('pages/support/create-tickets');
+    }
+
+    public function myTicketsList()
+    {
+        return view('pages/support/my-tickets');
+    }
+
+    public function assignedTicketsList()
+    {
+        return view('pages/support/assigned-tickets');
+    }
+
+    // API
+    public function getAllTicketsData()
+    {
+        $tickets = DB::table('t_support_tickets')
+            ->select([
+                'id_ticket',
+                'category_id',
+                'name',
+                'ticket_title',
+                'due_date',
+                'ticket_status',
+                'ticket_priority',
+            ])
+            ->get();
+
+        return response()->json([
+            'data' => $tickets,
+            'draw' => 1,
+            'recordsTotal' => $tickets->count(),
+            'recordsFiltered' => $tickets->count()
+        ]);
+    }
+    public function getTicketById($id) {
+        $ticket = DB::table('t_support_tickets')->where('idrec', $id)->first();
+
+        return response()->json($ticket);
+    }
+
+    public function getMyTicketsData() {
+        $myTickets = DB::table('t_support_tickets')->where('created_by', auth()->user()->id)->get();
+
+        return response()->json($myTickets);
+    }
+
+    public function getAssignedTicketsData() {
+        $assignedTickets = DB::table('t_support_tickets')->where('assigned_to', auth()->user()->id)->get();
+
+        return response()->json($assignedTickets);
+    }
+    
 }
