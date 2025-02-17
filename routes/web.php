@@ -11,14 +11,16 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\inventory\InvListController;
-use App\Http\Controllers\MikrotikController;
 use App\Http\Controllers\profile\ProfileController;
 use App\Http\Controllers\salesorder\NewCustomerRequestController;
 use App\Http\Controllers\salesorder\SalesOrderController;
 use App\Http\Controllers\SearchProductController;
-use App\Http\Controllers\TrafficCollectorController;
-use Faker\Guesser\Name;
 
+use App\Http\Controllers\MikrotikController;
+use App\Http\Controllers\TrafficCollectorController;
+use App\Http\Controllers\SupportController;
+
+use Faker\Guesser\Name;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +96,38 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/usage-stats/getData/{routerId}',[MikrotikController::class, 'getUsageStatsData'])->name('mikrotik.usage-stats.data');
         // display the page
         Route::get('/usage-stats/{routerId}',[MikrotikController::class, 'getUsageStats'])->name('mikrotik.usage-stats');
+    });
+
+    // Mikrotik API
+    Route::prefix('support')->group(function () {
+        //Router List
+        Route::get('/tickets', [SupportController::class, 'getAllTickets'])->name('support.tickets');
+
+        //Interface List
+        // Route::get('/interface/{routerId}', [MikrotikController::class, 'getInterface'])->name('mikrotik.interface');
+        // Route::get('/interfaces/{routerId}', [MikrotikController::class, 'getInterfaces'])->name('mikrotik.interfaces');
+        // // Route::get('/interfaces/getDataJson', [MikrotikController::class, 'getInterfacesDataJson'])->name('mikrotik.interfaces-data-json'); 
+        
+        // //Device List
+        // Route::get('/device/{routerId}', [MikrotikController::class, 'getConnectedDevice'])->name('mikrotik.device');
+        // Route::get('/devices/getData', [MikrotikController::class, 'getConnectedDevicesData'])->name('mikrotik.devices-data');  
+        // Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');   
+        
+        // // Firewall List
+        // Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');   
+        
+        // // PPP List
+        // Route::get('/l2tp/{routerId}', [MikrotikController::class, 'getL2TP'])->name('mikrotik.l2tp');    
+        // Route::get('/l2tps/{routerId}', [MikrotikController::class, 'getL2TPData'])->name('mikrotik.l2tp-data');    
+
+        // // PPP List
+        // Route::get('/ppp/{routerId}', [MikrotikController::class, 'getPPP'])->name('mikrotik.ppp');    
+        // Route::get('/ppps/{routerId}', [MikrotikController::class, 'getPPPSecretsData'])->name('mikrotik.ppp-data');    
+
+        // // get statistics data 
+        // Route::get('/usage-stats/getData/{routerId}',[MikrotikController::class, 'getUsageStatsData'])->name('mikrotik.usage-stats.data');
+        // // display the page
+        // Route::get('/usage-stats/{routerId}',[MikrotikController::class, 'getUsageStats'])->name('mikrotik.usage-stats');
     });
 
     // SalesOrders
