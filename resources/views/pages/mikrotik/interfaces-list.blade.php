@@ -80,30 +80,32 @@
                     let tableBody = "";
 
                     interfaces.forEach(function (item) {
-                        let rowColor = "background-color: #e0e0e0;";
-                        if (item.running === "true" && item.disabled === "false") {
-                            rowColor = 'background-color: #d4edda;'; // Green for Running
-                        } else if (item.running === "false" && item.disabled === "false") {
-                            rowColor = 'background-color: #f5848e;'; // Red for Stopped
-                        }
-
-                        tableBody += `
-                            <tr style="${rowColor}">
-                                <td>${item.name}</td>
-                                <td>${item["mac-address"]}</td>
-                                <td>${item["rx-byte"]}</td>
-                                <td>${item["tx-byte"]}</td>
-                                <td class="text-center">${item.running === "true" ? "Running" : "Stopped"}</td>
-                                <td class="text-center">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
-                                <td class="text-center flex justify-center items-center">
-                                    <button class="btn-action btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
+                        if (item.type === 'ether' || item.type === 'vlan' || item.type === 'bridge') {
+                            let rowColor = "background-color: #e0e0e0;";
+                            if (item.running === "true" && item.disabled === "false") {
+                                rowColor = 'background-color: #d4edda;'; // Green for Running
+                            } else if (item.running === "false" && item.disabled === "false") {
+                                rowColor = 'background-color: #f5848e;'; // Red for Stopped
+                            }
+                            
+                            tableBody += `
+                                <tr style="${rowColor}">
+                                    <td>${item.name}</td>
+                                    <td>${item["mac-address"]}</td>
+                                    <td>${item["rx-byte"]}</td>
+                                    <td>${item["tx-byte"]}</td>
+                                    <td class="text-center">${item.running === "true" ? "Running" : "Stopped"}</td>
+                                    <td class="text-center">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
+                                    <td class="text-center flex justify-center items-center">
+                                        <button class="btn-action btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
                                         style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;" 
                                         data-name="${item.name}">
                                         📈 <span class="ml-2">View MRTG</span>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
+                                        </button>
+                                    </td>
+                                    </tr>
+                                `;                                
+                        }
                     });
 
                     $("#interfaceTable tbody").html(tableBody);
@@ -144,27 +146,29 @@
                     let enabledCount = 0;
 
                     interfaces.forEach(function (item) {
-                        let statusColor = "#6c757d";
-                        let statusText = "Unknown";
+                        if (item.type === 'ether' || item.type === 'vlan' || item.type === 'bridge') {
+                            let statusColor = "#6c757d";
+                            let statusText = "Unknown";
 
-                        if (item.running === "true" && item.disabled === "false") {
-                            statusColor = "#28a745"; // Green
-                            statusText = "Running ✅";
-                            runningCount++;
-                            enabledCount++;
-                        } else if (item.running === "false" && item.disabled === "false") {
-                            statusColor = "#dc3545"; // Red
-                            statusText = "Stopped ❌";
-                            enabledCount++;
-                        } else if (item.disabled === "true") {
-                            statusText = "Disabled ⚠️";
+                            if (item.running === "true" && item.disabled === "false") {
+                                statusColor = "#28a745"; // Green
+                                statusText = "Running ✅";
+                                runningCount++;
+                                enabledCount++;
+                            } else if (item.running === "false" && item.disabled === "false") {
+                                statusColor = "#dc3545"; // Red
+                                statusText = "Stopped ❌";
+                                enabledCount++;
+                            } else if (item.disabled === "true") {
+                                statusText = "Disabled ⚠️";
+                            }
+
+                            let statusBox = document.createElement("div");
+                            statusBox.className = "p-2 text-white font-semibold text-xs text-center rounded-md shadow-sm";
+                            statusBox.style.backgroundColor = statusColor;
+                            statusBox.innerHTML = `<span>${item.name}</span><br><small>${statusText}</small>`;
+                            statusContainer.appendChild(statusBox);
                         }
-
-                        let statusBox = document.createElement("div");
-                        statusBox.className = "p-2 text-white font-semibold text-xs text-center rounded-md shadow-sm";
-                        statusBox.style.backgroundColor = statusColor;
-                        statusBox.innerHTML = `<span>${item.name}</span><br><small>${statusText}</small>`;
-                        statusContainer.appendChild(statusBox);
                     });
 
                     // Update statusBlock based on conditions

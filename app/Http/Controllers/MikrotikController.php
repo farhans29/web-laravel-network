@@ -520,7 +520,7 @@ class MikrotikController extends Controller
 
         // Fetch interfaces
         $interfaces = collect($this->mikrotikService->getPPPSecrets($client));
-        // dd($interfaces);
+        dd($interfaces);
 
         return view('pages/mikrotik/interfaces', compact('router'));
     }

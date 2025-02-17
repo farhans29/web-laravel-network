@@ -70,7 +70,7 @@
             let urlParts = window.location.pathname.split("/");
             let routerId = urlParts[urlParts.length - 1]; // Get last segment
 
-            let requestUrl = "{{ route('mikrotik.interfaces-data-json') }}"; // Laravel route
+            let requestUrl = "{{ route('mikrotik.ppp-secrets-data-json') }}"; // Laravel route
             let fullUrl = `${requestUrl}?idr=${routerId}`; // Append router ID dynamically
 
             fetchInterfacesForTable(fullUrl);
