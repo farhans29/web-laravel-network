@@ -11,14 +11,16 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\inventory\InvListController;
-use App\Http\Controllers\MikrotikController;
 use App\Http\Controllers\profile\ProfileController;
 use App\Http\Controllers\salesorder\NewCustomerRequestController;
 use App\Http\Controllers\salesorder\SalesOrderController;
 use App\Http\Controllers\SearchProductController;
-use App\Http\Controllers\TrafficCollectorController;
-use Faker\Guesser\Name;
 
+use App\Http\Controllers\MikrotikController;
+use App\Http\Controllers\TrafficCollectorController;
+use App\Http\Controllers\SupportController;
+
+use Faker\Guesser\Name;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +96,30 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/usage-stats/getData/{routerId}',[MikrotikController::class, 'getUsageStatsData'])->name('mikrotik.usage-stats.data');
         // display the page
         Route::get('/usage-stats/{routerId}',[MikrotikController::class, 'getUsageStats'])->name('mikrotik.usage-stats');
+    });
+
+    // Mikrotik API
+    Route::prefix('support')->group(function () {
+        // PAGES
+        Route::get('/tickets', [SupportController::class, 'allTicketsList'])->name('support.tickets.list');
+        Route::get('/tickets/create', [SupportController::class, 'creatTicket'])->name('support.tickets.create');
+        Route::get('/tickets/my', [SupportController::class, 'myTicketsList'])->name('support.tickets.my');
+        Route::get('/tickets/assigned', [SupportController::class, 'assignedTicketsList'])->name('support.tickets.assigned');
+
+        // GET API
+        Route::get('/tickets/getData', [SupportController::class, 'getAllTicketsData'])->name('support.tickets.allDatas');
+        Route::get('/tickets/getDataById/{id}', [SupportController::class, 'getTicketById'])->name('support.tickets.getById');
+        Route::get('/tickets/my/getData', [SupportController::class, 'getMyTicketsData'])->name('support.tickets.myDatas');
+        Route::get('/tickets/assigned/getData', [SupportController::class, 'getAssignedTicketsData'])->name('support.tickets.assignedDatas');
+
+        // POST API
+        Route::post('/tickets/create', [SupportController::class, 'createTicket'])->name('support.tickets.create');
+
+        // PUT API
+        Route::put('/tickets/update/{ticketId}', [SupportController::class, 'updateTicket'])->name('support.tickets.update');
+
+        // DELETE API
+        Route::delete('/tickets/delete/{ticketId}', [SupportController::class, 'deleteTicket'])->name('support.tickets.delete');
     });
 
     // SalesOrders

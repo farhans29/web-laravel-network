@@ -388,7 +388,8 @@ class MikrotikController extends Controller
             ")
             ->where('idrouter', $routerId)
             ->whereRaw("MONTH(datetime) = ?", [$month])
-            ->orderBy('datetime', 'asc') // Ensuring data is ordered by date
+            ->orderBy('datetime', 'asc') // Sort by date first
+            ->orderBy('int_type', 'asc') // Then sort by interface type
             ->get();
 
         // Prepare data for response
