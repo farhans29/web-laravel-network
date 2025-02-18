@@ -72,15 +72,65 @@ class SupportController extends Controller
     }
 
     public function getMyTicketsData() {
-        $myTickets = DB::table('t_support_tickets')->where('created_by', auth()->user()->id)->get();
+         $myTickets = DB::table('t_support_tickets')
+            ->select([
+                'id_ticket',
+                'category_id',
+                'due_date',
+                'ticket_title',
+                'ticket_body',
+                'router_name',
+                'name',
+                'email',
+                'ticket_priority',
+                'ticket_status',
+                'id_attachment_ticket',
+                'resolution_notes',
+                'last_reply_at',
+                'is_resolved'
+            ])
+            ->where('created_by', auth()->user()->id)
+            ->get();
 
-        return response()->json($myTickets);
+        return response()->json([
+            'data' => $myTickets,
+            'draw' => 1,
+            'recordsTotal' => $myTickets->count(),
+            'recordsFiltered' => $myTickets->count()
+        ]);
     }
 
     public function getAssignedTicketsData() {
-        $assignedTickets = DB::table('t_support_tickets')->where('assigned_to', auth()->user()->id)->get();
+        $assignedTickets = DB::table('t_support_tickets')
+            ->select([
+                'id_ticket',
+                'category_id',
+                'due_date',
+                'ticket_title',
+                'ticket_body',
+                'router_name',
+                'name',
+                'email',
+                'ticket_priority',
+                'ticket_status',
+                'id_attachment_ticket',
+                'resolution_notes',
+                'last_reply_at',
+                'is_resolved'
+            ])
+            ->where(function($query) {
+                $query->where('assigned_to', auth()->user()->id)
+                      ->orWhereNull('assigned_to')
+                      ->orWhere('assigned_to', 0);
+            })
+            ->get();
 
-        return response()->json($assignedTickets);
+        return response()->json([
+            'data' => $assignedTickets,
+            'draw' => 1,
+            'recordsTotal' => $assignedTickets->count(),
+            'recordsFiltered' => $assignedTickets->count()
+        ]);
     }
     
 }

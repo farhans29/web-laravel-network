@@ -1,7 +1,4 @@
 <x-app-layout>
-    @push('styles')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-    @endpush
 
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
         <!-- Page header -->
@@ -9,7 +6,7 @@
             <!-- Left: Title -->
             <div class="mb-4 sm:mb-0">
                 <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">
-                    All Tickets
+                    All Tickets 📝
                 </h1>
             </div>
         </div>
@@ -136,7 +133,7 @@
                                         View
                                     </button>
                                     <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-md text-xs">
-                                        Edit
+                                        Assign To
                                     </button>
                                     <button class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md text-xs">
                                         Reply
