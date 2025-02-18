@@ -109,6 +109,7 @@
         </div>
         
         <!-- Cards -->
+        <h1 class="text-xl font-bold text-slate-800 border-b border-slate-300 pb-2 mt-8">Daily</h1>
         <div class="grid grid-cols-12 gap-6">
             @foreach ($dataRouter as $router)
                 <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
@@ -121,7 +122,8 @@
                                 {{ $router->idrouter }} - {{ $router->type }}
                             </header>
                             <ul class="my-1">
-                                <img class="object-cover object-center w-full h-full"
+                                <img id="graphImage1-{{ $router->idrouter }}" 
+                                    class="object-cover object-center w-full h-full"
                                     src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/daily.gif?{{ time() }}" 
                                     alt="Daily Graph">
                             </ul>
@@ -131,10 +133,64 @@
             @endforeach
         </div>
 
+        <h1 class="text-xl font-bold text-slate-800 border-b border-slate-300 pb-2 mt-8">Weekly</h1>
+        <div class="grid grid-cols-12 gap-6">
+            @foreach ($dataRouter as $router)
+                <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
+                    <header class="px-5 py-4 border-b border-slate-100">
+                        <h2 class="font-semibold text-slate-800">{{ $router->name }}</h2>
+                    </header>
+                    <div class="p-3">
+                        <div class="grow">
+                            <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-2">
+                                {{ $router->idrouter }} - {{ $router->type }}
+                            </header>
+                            <ul class="my-1">
+                                <img id="graphImage2-{{ $router->idrouter }}" 
+                                    class="object-cover object-center w-full h-full"
+                                    src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/weekly.gif?{{ time() }}" 
+                                    alt="Daily Graph">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+
     </div>
     @section('js-page')
     <script>
-    
+        document.addEventListener("DOMContentLoaded", function () {
+            // Select all images with an ID starting with 'graphImage-'
+            document.querySelectorAll("img[id^='graphImage1-']").forEach(img => {
+                img.onload = function () {
+                    setTimeout(() => {
+                        if (this.naturalWidth === 118 && this.naturalHeight === 17) { 
+                            // Replace with custom image if MikroTik placeholder is detected
+                            this.src = "{{ asset('images/no-image-found.png') }}";
+                        }
+                    }, 300); // Slight delay to ensure image fully loads
+                };
+                
+                // Force reload to trigger onload event properly
+                img.src = img.src + "?nocache=" + new Date().getTime();
+            });
+
+            document.querySelectorAll("img[id^='graphImage2-']").forEach(img => {
+                img.onload = function () {
+                    setTimeout(() => {
+                        if (this.naturalWidth === 118 && this.naturalHeight === 17) { 
+                            // Replace with custom image if MikroTik placeholder is detected
+                            this.src = "{{ asset('images/no-image-found.png') }}";
+                        }
+                    }, 300); // Slight delay to ensure image fully loads
+                };
+                
+                // Force reload to trigger onload event properly
+                img.src = img.src + "?nocache=" + new Date().getTime();
+            });
+        });
     </script>
     @endsection
 </x-app-layout>
