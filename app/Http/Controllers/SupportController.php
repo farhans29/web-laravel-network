@@ -43,11 +43,18 @@ class SupportController extends Controller
             ->select([
                 'id_ticket',
                 'category_id',
-                'name',
-                'ticket_title',
                 'due_date',
-                'ticket_status',
+                'ticket_title',
+                'ticket_body',
+                'router_name',
+                'name',
+                'email',
                 'ticket_priority',
+                'ticket_status',
+                'id_attachment_ticket',
+                'resolution_notes',
+                'last_reply_at',
+                'is_resolved'
             ])
             ->get();
 
