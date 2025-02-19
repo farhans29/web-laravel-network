@@ -28,13 +28,11 @@
                 <thead>
                     <tr>
                         {{-- <th class="text-center">*</th> --}}
-                        <th class="text-center">Port</th>
-                        <th class="text-center">Name</th>
-                        <th class="text-center">RX</th>
-                        <th class="text-center">TX</th>
-                        <th class="text-center">Running</th>
-                        <th class="text-center">Enabled</th>
-                        <th class="text-center">Action</th>
+                        <th class="text-center" style="font-size: 1rem">Port</th>
+                        <th class="text-center" style="font-size: 1rem">Mac Address</th>
+                        <th class="text-center" style="font-size: 1rem">Connection</th>
+                        <th class="text-center" style="font-size: 1rem">Port Status</th>
+                        <th class="text-center" style="font-size: 1rem">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,12 +88,10 @@
                             
                             tableBody += `
                                 <tr style="${rowColor}">
-                                    <td>${item.name}</td>
-                                    <td>${item["mac-address"]}</td>
-                                    <td>${item["rx-byte"]}</td>
-                                    <td>${item["tx-byte"]}</td>
-                                    <td class="text-center">${item.running === "true" ? "Running" : "Stopped"}</td>
-                                    <td class="text-center">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
+                                    <td class="align-middle" style="font-size: 1rem">${item.name}</td>
+                                    <td class="align-middle" style="font-size: 1rem">${item["mac-address"]}</td>
+                                    <td class="text-center align-middle" style="font-size: 1rem">${item.running === "true" ? "Running" : "Stopped"}</td>
+                                    <td class="text-center align-middle" style="font-size: 1rem">${item.disabled === "false" ? "Enabled" : "Disabled"}</td>
                                     <td class="text-center flex justify-center items-center">
                                         <button class="btn-action btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
                                         style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;" 

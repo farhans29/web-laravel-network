@@ -122,10 +122,18 @@
                                 {{ $router->idrouter }} - {{ $router->type }}
                             </header>
                             <ul class="my-1">
+                                <h5>Daily</h5>
                                 <img id="graphImage1-{{ $router->idrouter }}" 
                                     class="object-cover object-center w-full h-full"
                                     src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/daily.gif?{{ time() }}" 
                                     alt="Daily Graph">
+                            </ul>
+                            <ul class="my-1">
+                                <h5>Weekly</h5>
+                                <img id="graphImage2-{{ $router->idrouter }}" 
+                                    class="object-cover object-center w-full h-full"
+                                    src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/weekly.gif?{{ time() }}" 
+                                    alt="Weekly Graph">
                             </ul>
                         </div>
                     </div>
@@ -133,7 +141,7 @@
             @endforeach
         </div>
 
-        <h1 class="text-xl font-bold text-slate-800 border-b border-slate-300 pb-2 mt-8">Weekly</h1>
+        {{-- <h1 class="text-xl font-bold text-slate-800 border-b border-slate-300 pb-2 mt-8">Weekly</h1>
         <div class="grid grid-cols-12 gap-6">
             @foreach ($dataRouter as $router)
                 <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
@@ -155,7 +163,7 @@
                     </div>
                 </div>
             @endforeach
-        </div>
+        </div> --}}
 
 
     </div>
@@ -169,6 +177,10 @@
                         if (this.naturalWidth === 118 && this.naturalHeight === 17) { 
                             // Replace with custom image if MikroTik placeholder is detected
                             this.src = "{{ asset('images/no-image-found.png') }}";
+
+                            // Force custom dimensions
+                            this.style.width = "304px";  // Set width
+                            this.style.height = "103.36px"; // Set height
                         }
                     }, 300); // Slight delay to ensure image fully loads
                 };
@@ -183,6 +195,10 @@
                         if (this.naturalWidth === 118 && this.naturalHeight === 17) { 
                             // Replace with custom image if MikroTik placeholder is detected
                             this.src = "{{ asset('images/no-image-found.png') }}";
+                            
+                            // Force custom dimensions
+                            this.style.width = "304px";  // Set width
+                            this.style.height = "103.36px"; // Set height
                         }
                     }, 300); // Slight delay to ensure image fully loads
                 };

@@ -201,8 +201,8 @@
                     },
                 ],
                 columnDefs: [
-                    { className: 'text-center fixed-column', targets: [0, 1, 3, 4, 5, 6] }, // Centered text
-                    { className: 'text-left fixed-column', targets: [2] }, // Left-aligned text
+                    { className: 'text-center align-middle fixed-column text-base', targets: [0, 1, 3, 4, 5, 6] }, // Centered text
+                    { className: 'text-left align-middle fixed-column text-base', targets: [2] }, // Left-aligned text
                 ],
                 lengthMenu: [[30, 50, 100, -1], [30, 50, 100, 'All']],
                 autoWidth: false // Disable automatic resizing
