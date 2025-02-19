@@ -151,6 +151,7 @@
 
                             <!-- Submenu (List & New) -->
                             <ul class="pl-9 mt-1" x-show="open" x-cloak>
+                                {{-- ADMIN ONLY --}}
                                 <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
                                         @if (Route::is('support.tickets.list')) !text-indigo-500 @endif"
@@ -158,6 +159,7 @@
                                         <span class="text-sm font-medium duration-200">All Tickets</span>
                                     </a>
                                 </li>
+                                {{-- USER AND ADMIN FOR TESTER --}}
                                 <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
                                         @if (Route::is('support.tickets.create')) !text-indigo-500 @endif"
@@ -165,6 +167,7 @@
                                         <span class="text-sm font-medium duration-200">Create Ticket</span>  
                                     </a>
                                 </li>
+                                {{-- USER AND ADMIN FOR TESTER --}}
                                 <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
                                         @if (Route::is('support.tickets.my')) !text-indigo-500 @endif"
@@ -172,6 +175,7 @@
                                         <span class="text-sm font-medium duration-200">My Tickets</span>  
                                     </a>
                                 </li>
+                                {{-- ADMIN ONLY --}}
                                 <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
                                         @if (Route::is('support.tickets.assigned')) !text-indigo-500 @endif"

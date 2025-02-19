@@ -70,7 +70,6 @@
                     type: "GET",
                     data: { monthInput: month },
                     success: function (response) {
-
                         let chartsContainer = $("#chartsContainer");
                         chartsContainer.empty(); // Clear previous charts
                         
@@ -79,17 +78,31 @@
                             console.error("Invalid response format:", response);
                             return;
                         }
-                         if (!response.labels.length) {
-                            // If no data, show a message
+
+                        // Get current date and date 30 days ago
+                        let currentDate = new Date();
+                        let thirtyDaysAgo = new Date();
+                        thirtyDaysAgo.setDate(currentDate.getDate() - 30);
+
+                        // Filter data for last 30 days
+                        let filteredIndices = response.labels.map((dateString, index) => {
+                            let dataDate = new Date(dateString);
+                            return dataDate >= thirtyDaysAgo ? index : null;
+                        }).filter(index => index !== null);
+
+                        // If no filtered data available
+                        if (filteredIndices.length === 0) {
                             chartsContainer.html(`
                                 <div class="p-4 bg-gray-100 text-center text-gray-500 rounded-md">
-                                    No usage data available for the selected month.
+                                    No usage data available for the last 30 days.
                                 </div>
                             `);
                             return;
                         }
-                        // Group data by interface type
-                        response.labels.forEach((dateString, index) => {
+
+                        // Group filtered data by interface type
+                        filteredIndices.forEach((index) => {
+                            let dateString = response.labels[index];
                             let intType = response.int_type[index];
                             if (!groupedData[intType]) {
                                 groupedData[intType] = { labels: [], upload: [], download: [] };
