@@ -21,10 +21,10 @@
                 <thead>
                     <tr>
                         <th class="text-center">Ticket ID</th>
-                        <th class="text-center">Category</th>
+                        {{-- <th class="text-center">Category</th> --}}
                         <th class="text-center">Customer Name</th>
                         <th class="text-center">Title</th>
-                        <th class="text-center">Due Date</th>
+                        {{-- <th class="text-center">Due Date</th> --}}
                         <th class="text-center">Status</th>
                         <th class="text-center">Priority</th>
                         <th class="text-center">Action</th>
@@ -57,13 +57,13 @@
                         },
                         className: 'text-center'
                     },
-                    { 
-                        data: 'category_id',
-                        render: function(data, type, row) {
-                            return data;
-                        },
-                        className: 'text-center'
-                    },
+                    // { 
+                    //     data: 'category_id',
+                    //     render: function(data, type, row) {
+                    //         return data;
+                    //     },
+                    //     className: 'text-center'
+                    // },
                     { 
                         data: 'name',
                         render: function(data, type, row) {
@@ -78,18 +78,18 @@
                         },
                         className: 'text-left'
                     },
-                    { 
-                        data: 'due_date',
-                        render: function(data, type, row) {
-                            if (!data) return '';
-                            const date = new Date(data);
-                            return date.toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
-                            });
-                        }
-                    },
+                    // { 
+                    //     data: 'due_date',
+                    //     render: function(data, type, row) {
+                    //         if (!data) return '';
+                    //         const date = new Date(data);
+                    //         return date.toLocaleDateString('en-GB', {
+                    //             day: '2-digit',
+                    //             month: 'short',
+                    //             year: 'numeric'
+                    //         });
+                    //     }
+                    // },
                     {
                         data: 'ticket_status',
                         render: function(data, type, row) {
@@ -134,9 +134,6 @@
                                     </button>
                                     <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-md text-xs">
                                         Edit
-                                    </button>
-                                    <button class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md text-xs">
-                                        Reply
                                     </button>
                                 </div>
                             `;

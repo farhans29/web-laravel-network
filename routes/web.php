@@ -105,6 +105,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/tickets/create', [SupportController::class, 'creatTicket'])->name('support.tickets.create');
         Route::get('/tickets/my', [SupportController::class, 'myTicketsList'])->name('support.tickets.my');
         Route::get('/tickets/assigned', [SupportController::class, 'assignedTicketsList'])->name('support.tickets.assigned');
+        Route::get('/tickets/view/{id}', [SupportController::class, 'viewTicket'])
+            ->where('id', '.*')
+            ->name('support.tickets.view');
 
         // GET API
         Route::get('/tickets/getData', [SupportController::class, 'getAllTicketsData'])->name('support.tickets.allDatas');
@@ -114,12 +117,18 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // POST API
         Route::post('/tickets/create', [SupportController::class, 'createTicket'])->name('support.tickets.create');
+        Route::post('/tickets/store', [SupportController::class, 'store'])->name('support.tickets.store');
 
         // PUT API
         Route::put('/tickets/update/{ticketId}', [SupportController::class, 'updateTicket'])->name('support.tickets.update');
 
         // DELETE API
         Route::delete('/tickets/delete/{ticketId}', [SupportController::class, 'deleteTicket'])->name('support.tickets.delete');
+
+        // Close Ticket API
+        Route::put('/tickets/close/{id}', [SupportController::class, 'closeTicket'])
+            ->where('id', '.*')
+            ->name('support.tickets.close');
     });
 
     // SalesOrders

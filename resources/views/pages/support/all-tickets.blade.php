@@ -21,10 +21,10 @@
                 <thead>
                     <tr>
                         <th class="text-center">Ticket ID</th>
-                        <th class="text-center">Category</th>
+                        {{-- <th class="text-center">Category</th> --}}
                         <th class="text-center">Customer Name</th>
                         <th class="text-center">Title</th>
-                        <th class="text-center">Due Date</th>
+                        {{-- <th class="text-center">Due Date</th> --}}
                         <th class="text-center">Status</th>
                         <th class="text-center">Priority</th>
                         <th class="text-center">Action</th>
@@ -39,6 +39,9 @@
 
     @section('js-page')
     <script>
+        // Add this at the top of your script
+        const viewTicketBaseUrl = '{{ route('support.tickets.view', ':id') }}';
+
         $(document).ready(function() {
             $('#ticketsTable').DataTable({
                 ajax: {
@@ -57,13 +60,13 @@
                         },
                         className: 'text-center'
                     },
-                    { 
-                        data: 'category_id',
-                        render: function(data, type, row) {
-                            return data;
-                        },
-                        className: 'text-center'
-                    },
+                    // { 
+                    //     data: 'category_id',
+                    //     render: function(data, type, row) {
+                    //         return data;
+                    //     },
+                    //     className: 'text-center'
+                    // },
                     { 
                         data: 'name',
                         render: function(data, type, row) {
@@ -78,18 +81,18 @@
                         },
                         className: 'text-left'
                     },
-                    { 
-                        data: 'due_date',
-                        render: function(data, type, row) {
-                            if (!data) return '';
-                            const date = new Date(data);
-                            return date.toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
-                            });
-                        }
-                    },
+                    // { 
+                    //     data: 'due_date',
+                    //     render: function(data, type, row) {
+                    //         if (!data) return '';
+                    //         const date = new Date(data);
+                    //         return date.toLocaleDateString('en-GB', {
+                    //             day: '2-digit',
+                    //             month: 'short',
+                    //             year: 'numeric'
+                    //         });
+                    //     }
+                    // },
                     {
                         data: 'ticket_status',
                         render: function(data, type, row) {
@@ -127,16 +130,18 @@
                     {
                         data: null,
                         render: function(data, type, row) {
+                            // Double encode the ID to handle special characters properly
+                            const encodedId = encodeURIComponent(row.id_ticket);
+                            const viewUrl = viewTicketBaseUrl.replace(':id', encodedId);
                             return `
                                 <div class="flex items-center justify-center space-x-2">
-                                    <button class="bg-cyan-500 hover:bg-cyan-600 text-white px-2 py-1 rounded-md text-xs">
+                                    <a href="javascript:void(0)" 
+                                       onclick="viewTicket('${viewUrl}')"
+                                       class="bg-cyan-500 hover:bg-cyan-600 text-white px-2 py-1 rounded-md text-xs">
                                         View
-                                    </button>
+                                    </a>
                                     <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-md text-xs">
                                         Assign To
-                                    </button>
-                                    <button class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md text-xs">
-                                        Reply
                                     </button>
                                 </div>
                             `;
@@ -160,6 +165,44 @@
                 }
             });
         });
+
+        // Add this function to handle ticket viewing
+        function viewTicket(url) {
+            fetch(url)
+                .then(response => {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    if (typeof data === 'object' && data.status === 'error') {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = data.redirect;
+                            }
+                        });
+                    } else {
+                        // If it's HTML, redirect to the URL instead of replacing document
+                        window.location.href = url;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An unexpected error occurred',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
     </script>
     @endsection
 </x-app-layout>
