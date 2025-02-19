@@ -31,11 +31,11 @@
                 <!-- Title and Priority -->
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold text-slate-800">{{ $ticket->ticket_title }}</h2>
-                    <span class="@if($ticket->ticket_priority === 'urgent') 
+                    <span class="@if($ticket->ticket_priority === 'urgent' || $ticket->ticket_priority === 'Urgent') 
                                  bg-red-100 text-red-600 
-                               @elseif($ticket->ticket_priority === 'high')
+                               @elseif($ticket->ticket_priority === 'high' || $ticket->ticket_priority === 'High')
                                  bg-yellow-100 text-orange-600
-                               @elseif($ticket->ticket_priority === 'medium')
+                               @elseif($ticket->ticket_priority === 'medium' || $ticket->ticket_priority === 'Medium')
                                  bg-blue-100 text-blue-600
                                @else
                                  bg-green-100 text-green-600
@@ -57,9 +57,9 @@
                             <div>
                                 <p class="text-sm"><span class="font-medium">Router:</span> {{ $ticket->router_name }}</p>
                                 <p class="text-sm"><span class="font-medium">Status:</span> 
-                                    <span class="@if($ticket->ticket_status === 'open')
+                                    <span class="@if($ticket->ticket_status === 'open' || $ticket->ticket_status === 'Open')
                                                  bg-emerald-100 text-emerald-600
-                                               @elseif($ticket->ticket_status === 'in progress')
+                                               @elseif($ticket->ticket_status === 'in progress' || $ticket->ticket_status === 'In Progress' || $ticket->ticket_status === 'in_progress')
                                                  bg-amber-100 text-amber-600
                                                @else
                                                  bg-slate-100 text-slate-500

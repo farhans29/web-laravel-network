@@ -192,7 +192,45 @@ class SupportController extends Controller
             ], 404);
         }
 
-        return view('pages/support/ticket-detail', compact('ticket'));
+        return view('pages/support/views/ticket-detail', compact('ticket'));
+    }
+    public function viewTicketAdmin($ticketId)
+    {
+        // Decode the URL-encoded ticket ID
+        $decodedTicketId = urldecode($ticketId);
+        
+        // Get the ticket details
+        $ticket = DB::table('t_support_tickets')
+            ->select([
+                'id_ticket',
+                'category_id',
+                'due_date',
+                'ticket_title',
+                'ticket_body',
+                'router_name',
+                'name',
+                'email',
+                'ticket_priority',
+                'ticket_status',
+                'id_attachment_ticket',
+                'resolution_notes',
+                'last_reply_at',
+                'is_resolved',
+                'created_at',
+                'updated_at'
+            ])
+            ->where('id_ticket', $decodedTicketId)
+            ->first();
+
+        if (!$ticket) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ticket not found',
+                'redirect' => route('support.tickets.list')
+            ], 404);
+        }
+
+        return view('pages/support/views/ticket-detail-admin', compact('ticket'));
     }
 
     public function store(Request $request)
@@ -211,11 +249,18 @@ class SupportController extends Controller
 
             // Generate ticket ID
             $date = Carbon::now();
+            
+            // Extract first 3 letters from router name and convert to uppercase
+            $routerCode = Str::upper(Str::substr($request->router_name, 0, 3));
+            
+            // Get count of tickets for today with this router code
             $lastTicket = DB::table('t_support_tickets')
+                ->where('id_ticket', 'LIKE', "SUP/{$routerCode}/" . $date->format('ymd') . "/%")
                 ->whereDate('created_at', $date)
                 ->count();
+            
             $ticketNumber = str_pad($lastTicket + 1, 3, '0', STR_PAD_LEFT);
-            $ticketId = 'SUP/RT0/' . $date->format('ymd') . '/' . $ticketNumber;
+            $ticketId = "SUP/{$routerCode}/" . $date->format('ymd') . '/' . $ticketNumber;
 
             // Create the ticket
             $ticket = DB::table('t_support_tickets')->insert([

@@ -39,6 +39,7 @@
 
     @section('js-page')
     <script>
+        const viewTicketBaseUrl = '{{ route('support.tickets.view', ':id') }}';
         $(document).ready(function() {
             $('#ticketsTable').DataTable({
                 ajax: {
@@ -127,11 +128,14 @@
                     {
                         data: null,
                         render: function(data, type, row) {
+                            const encodedId = encodeURIComponent(row.id_ticket);
+                            const viewUrl = viewTicketBaseUrl.replace(':id', encodedId);
                             return `
                                 <div class="flex items-center justify-center space-x-2">
-                                    <button class="bg-cyan-500 hover:bg-cyan-600 text-white px-2 py-1 rounded-md text-xs">
+                                    <a href="${viewUrl}" 
+                                       class="bg-cyan-500 hover:bg-cyan-600 text-white px-2 py-1 rounded-md text-xs">
                                         View
-                                    </button>
+                                    </a>
                                     <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-md text-xs">
                                         Edit
                                     </button>

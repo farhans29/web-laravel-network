@@ -40,7 +40,7 @@
     @section('js-page')
     <script>
         // Add this at the top of your script
-        const viewTicketBaseUrl = '{{ route('support.tickets.view', ':id') }}';
+        const viewTicketBaseUrl = '{{ route('support.tickets.view-admin', ':id') }}';
 
         $(document).ready(function() {
             $('#ticketsTable').DataTable({

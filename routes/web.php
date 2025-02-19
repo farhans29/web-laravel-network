@@ -108,7 +108,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/tickets/view/{id}', [SupportController::class, 'viewTicket'])
             ->where('id', '.*')
             ->name('support.tickets.view');
-
+        Route::get('/tickets/view-admin/{id}', [SupportController::class, 'viewTicketAdmin'])
+            ->where('id', '.*')
+            ->name('support.tickets.view-admin');
+        
         // GET API
         Route::get('/tickets/getData', [SupportController::class, 'getAllTicketsData'])->name('support.tickets.allDatas');
         Route::get('/tickets/getDataById/{id}', [SupportController::class, 'getTicketById'])->name('support.tickets.getById');
