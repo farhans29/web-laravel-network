@@ -104,6 +104,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add the replies component -->
+        <x-ticket.replies :replies="$replies" :ticket="$ticket" :isAdmin="$isAdmin" />
     </div>
 
     @section('js-page')

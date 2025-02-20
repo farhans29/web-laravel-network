@@ -11,7 +11,7 @@
             
             <!-- Right: Actions -->
             <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-                <a href="{{ route('support.tickets.list') }}" 
+                <a href="{{ route('support.tickets.my') }}" 
                    class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-600">
                     ← Back to Tickets
                 </a>
@@ -104,6 +104,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- Replace the entire replies section with the component -->
+        <x-ticket.replies :replies="$replies" :ticket="$ticket" :isAdmin="$isAdmin" />
     </div>
 
     @section('js-page')
@@ -161,5 +164,56 @@
             });
         }
     </script>
+
+    @push('js')
+    <script>
+    $(document).ready(function() {
+        $('#replyForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Show loading state
+            Swal.fire({
+                title: 'Submitting reply...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: '{{ route('support.tickets.reply') }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Reply submitted successfully',
+                        showConfirmButton: true
+                    }).then(() => {
+                        // Reload the page to show the new reply
+                        location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: xhr.responseJSON?.message || 'Something went wrong!',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+    });
+    </script>
+    @endpush
     @endsection
 </x-app-layout> 
