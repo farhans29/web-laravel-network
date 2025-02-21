@@ -15,26 +15,6 @@
             </div>
         </div>
         
-        <!-- Chart -->
-        {{-- <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
-            <header class="px-5 py-4 border-b border-slate-100">
-                <h2 class="font-semibold text-slate-800">{{ 'Router 1 ' }}</h2>
-            </header>
-            <div class="p-3">
-                <!-- Card content -->
-                <div id="usage-stats-daily">
-                    <form id="monthForm" class="mb-3">
-                        <label for="monthInput" class="block text-sm font-medium text-gray-700">Month</label>
-                        <input type="month" id="monthInput" name="monthInput" class="mt-1 p-2 border border-gray-300 rounded-md">
-                    </form>
-                    <!-- Chart container -->
-                    <div id="chartsContainer" class="space-y-6">
-                        <!-- The chart will be provided here -->
-                    </div>
-
-                </div>
-            </div>
-        </div> --}}
         <!-- Chart Container -->
         <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
             <div class="p-3">
@@ -79,42 +59,40 @@
                             return;
                         }
 
-                        // Get current date and date 30 days ago
+                        // Get dates for last 30 days
+                        let dates = [];
                         let currentDate = new Date();
-                        let thirtyDaysAgo = new Date();
-                        thirtyDaysAgo.setDate(currentDate.getDate() - 30);
-
-                        // Filter data for last 30 days
-                        let filteredIndices = response.labels.map((dateString, index) => {
-                            let dataDate = new Date(dateString);
-                            return dataDate >= thirtyDaysAgo ? index : null;
-                        }).filter(index => index !== null);
-
-                        // If no filtered data available
-                        if (filteredIndices.length === 0) {
-                            chartsContainer.html(`
-                                <div class="p-4 bg-gray-100 text-center text-gray-500 rounded-md">
-                                    No usage data available for the last 30 days.
-                                </div>
-                            `);
-                            return;
+                        for (let i = 29; i >= 0; i--) {
+                            let date = new Date();
+                            date.setDate(currentDate.getDate() - i);
+                            dates.push(date.toISOString().split('T')[0]);
                         }
 
-                        // Group filtered data by interface type
-                        filteredIndices.forEach((index) => {
-                            let dateString = response.labels[index];
-                            let intType = response.int_type[index];
-                            if (!groupedData[intType]) {
-                                groupedData[intType] = { labels: [], upload: [], download: [] };
-                            }
-                            groupedData[intType].labels.push(dateString);
-                            groupedData[intType].upload.push(response.upload[index] || 0);
-                            groupedData[intType].download.push(response.download[index] || 0);
+                        // Get unique interface types
+                        let uniqueIntTypes = [...new Set(response.int_type)];
+
+                        // Initialize grouped data with all dates for each interface
+                        uniqueIntTypes.forEach(intType => {
+                            groupedData[intType] = {
+                                labels: [...dates],
+                                upload: new Array(30).fill(0),
+                                download: new Array(30).fill(0)
+                            };
                         });
 
-                        // Loop through each interface and create a chart
+                        // Fill in actual data where it exists
+                        response.labels.forEach((dateString, index) => {
+                            let intType = response.int_type[index];
+                            let dateIndex = dates.indexOf(dateString.split('T')[0]);
+                            if (dateIndex !== -1) {
+                                groupedData[intType].upload[dateIndex] = response.upload[index] || 0;
+                                groupedData[intType].download[dateIndex] = response.download[index] || 0;
+                            }
+                        });
+
+                        // Create charts for each interface type
                         Object.keys(groupedData).forEach((intType) => {
-                            let uniqueId = "usageStatsChart_" + intType.replace(/\s+/g, "_"); 
+                            let uniqueId = "usageStatsChart_" + intType.replace(/\s+/g, "_");
 
                             let cardHtml = `
                                 <div class="flex flex-col bg-white shadow-lg rounded-sm border border-slate-200">
@@ -131,12 +109,20 @@
                             
                             chartsContainer.append(cardHtml);
 
-                            // Create chart for this interface
+                            // Format dates for display
+                            const formattedLabels = groupedData[intType].labels.map(date => {
+                                return new Date(date).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short'
+                                });
+                            });
+
+                            // Create chart
                             let ctx = document.getElementById(uniqueId).getContext("2d");
                             new Chart(ctx, {
                                 type: "bar",
                                 data: {
-                                    labels: groupedData[intType].labels,
+                                    labels: formattedLabels,
                                     datasets: [
                                         {
                                             label: "Upload (Bytes)",
@@ -185,6 +171,11 @@
                     },
                     error: function (xhr, status, error) {
                         console.error("Error fetching data:", error);
+                        $("#chartsContainer").html(`
+                            <div class="p-4 bg-red-100 text-red-700 rounded-md">
+                                Error loading usage statistics: ${error}
+                            </div>
+                        `);
                     }
                 });
             }
