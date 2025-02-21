@@ -27,6 +27,7 @@
                         {{-- <th class="text-center">Due Date</th> --}}
                         <th class="text-center">Status</th>
                         <th class="text-center">Priority</th>
+                        <th class="text-center">Created At</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -93,6 +94,7 @@
                     //         });
                     //     }
                     // },
+                    
                     {
                         data: 'ticket_status',
                         render: function(data, type, row) {
@@ -128,6 +130,18 @@
                         className: 'text-center'
                     },
                     {
+                        data: 'created_at',
+                        render: function(data, type, row) {
+                            const date = new Date(data);
+                            return date.toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                            });
+                        },
+                        className: 'text-center'
+                    },
+                    {
                         data: null,
                         render: function(data, type, row) {
                             // Double encode the ID to handle special characters properly
@@ -148,7 +162,7 @@
                         }
                     }
                 ],
-                order: [[0, 'created_at']],
+                order: [[5, 'desc']],
                 responsive: true,
                 pageLength: 10,
                 processing: true,

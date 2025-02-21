@@ -27,6 +27,7 @@
                         {{-- <th class="text-center">Due Date</th> --}}
                         <th class="text-center">Status</th>
                         <th class="text-center">Priority</th>
+                        <th class="text-center">Created At</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -40,6 +41,9 @@
     @section('js-page')
     <script>
         const viewTicketBaseUrl = '{{ route('support.tickets.view', ':id') }}';
+        const userRoleId = {{ auth()->user()->role }};
+        const isAdmin = [100, 101, 999, 888].includes(userRoleId);
+        
         $(document).ready(function() {
             $('#ticketsTable').DataTable({
                 ajax: {
@@ -126,25 +130,43 @@
                         className: 'text-center'
                     },
                     {
+                        data: 'created_at',
+                        render: function(data, type, row) {
+                            const date = new Date(data);
+                            return date.toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                            });
+                        },
+                        className: 'text-center'
+                    },
+                    {
                         data: null,
                         render: function(data, type, row) {
                             const encodedId = encodeURIComponent(row.id_ticket);
                             const viewUrl = viewTicketBaseUrl.replace(':id', encodedId);
-                            return `
+                            let buttons = `
                                 <div class="flex items-center justify-center space-x-2">
                                     <a href="${viewUrl}" 
                                        class="bg-cyan-500 hover:bg-cyan-600 text-white px-2 py-1 rounded-md text-xs">
                                         View
-                                    </a>
+                                    </a>`;
+                            
+                            // Show edit button for admins or ticket owner
+                            if (isAdmin || row.created_by === {{ auth()->id() }}) {
+                                buttons += `
                                     <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-md text-xs">
                                         Edit
-                                    </button>
-                                </div>
-                            `;
+                                    </button>`;
+                            }
+                            
+                            buttons += `</div>`;
+                            return buttons;
                         }
                     }
                 ],
-                order: [[0, 'created_at']],
+                order: [[5, 'desc']],
                 responsive: true,
                 pageLength: 10,
                 processing: true,

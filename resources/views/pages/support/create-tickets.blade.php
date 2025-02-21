@@ -57,10 +57,13 @@
                                 <select id="router_name_input" name="router_name_input" 
                                     class="form-select w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-primary-500" required>
                                     <option value="" selected disabled>Select Router Name</option>
-                                    <option value="XVNB-524">XVNB-524</option>
-                                    <option value="GNAR-125">GNAR-125</option>
-                                    <option value="VABX-430">VABX-430</option>
+                                    @foreach($routers as $router)
+                                        <option value="{{ $router->idrouter }}" data-name="{{ $router->router_name }}">
+                                            {{ $router->router_name }}
+                                        </option>
+                                    @endforeach
                                 </select>
+                                <input type="hidden" id="router_id_input" name="router_id_input">
                             </div>
 
                             {{-- DROPDOWN PRIORITY --}}
@@ -110,6 +113,17 @@
     @section('js-page')
     <script>
         $(document).ready(function() {
+            // Initialize select2 for router dropdown
+            $('#router_name_input').select2({
+                placeholder: 'Select Router Name',
+                allowClear: true,
+                width: '100%'
+            }).on('change', function() {
+                // When selection changes, update the hidden input with the router ID
+                const selectedOption = $(this).find('option:selected');
+                $('#router_id_input').val($(this).val());
+            });
+
             $('#form_create1').on('submit', function(e) {
                 e.preventDefault();
                 
@@ -118,7 +132,8 @@
                     name: $('#user_name_input').val(),
                     email: $('#user_email_input').val(),
                     ticket_title: $('#ticket_title_input').val(),
-                    router_name: $('#router_name_input').val(),
+                    router_id: $('#router_id_input').val(),  // Send router ID
+                    router_name: $('#router_name_input option:selected').text().trim(), // Send router name
                     ticket_priority: $('#ticket_priority_input').val(),
                     ticket_body: $('#ticket_body_input').val(),
                 };
@@ -148,7 +163,7 @@
                             showConfirmButton: true
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '{{ route('support.tickets.list') }}';
+                                window.location.href = '{{ route('support.tickets.my') }}';
                             }
                         });
                     },

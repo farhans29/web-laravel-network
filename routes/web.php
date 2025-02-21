@@ -101,39 +101,40 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 
     // Mikrotik API
-    Route::prefix('support')->group(function () {
-        // PAGES
-        Route::get('/tickets', [SupportController::class, 'allTicketsList'])->name('support.tickets.list');
-        Route::get('/tickets/create', [SupportController::class, 'creatTicket'])->name('support.tickets.create');
+    Route::prefix('support')->middleware(['auth:sanctum', 'verified'])->group(function () {
+        // Routes accessible by all authenticated users (ADMIN, MANAGER, USER)
         Route::get('/tickets/my', [SupportController::class, 'myTicketsList'])->name('support.tickets.my');
-        Route::get('/tickets/assigned', [SupportController::class, 'assignedTicketsList'])->name('support.tickets.assigned');
+        Route::get('/tickets/my/getData', [SupportController::class, 'getMyTicketsData'])->name('support.tickets.myDatas');
+        Route::get('/tickets/create', [SupportController::class, 'creatTicket'])->name('support.tickets.create');
+        Route::post('/tickets/store', [SupportController::class, 'store'])->name('support.tickets.store');
         Route::get('/tickets/view/{id}', [SupportController::class, 'viewTicket'])
             ->where('id', '.*')
             ->name('support.tickets.view');
-        Route::get('/tickets/view-admin/{id}', [SupportController::class, 'viewTicketAdmin'])
-            ->where('id', '.*')
-            ->name('support.tickets.view-admin');
-        
-        // GET API
-        Route::get('/tickets/getData', [SupportController::class, 'getAllTicketsData'])->name('support.tickets.allDatas');
-        Route::get('/tickets/getDataById/{id}', [SupportController::class, 'getTicketById'])->name('support.tickets.getById');
-        Route::get('/tickets/my/getData', [SupportController::class, 'getMyTicketsData'])->name('support.tickets.myDatas');
-        Route::get('/tickets/assigned/getData', [SupportController::class, 'getAssignedTicketsData'])->name('support.tickets.assignedDatas');
 
-        // POST API
-        Route::post('/tickets/create', [SupportController::class, 'createTicket'])->name('support.tickets.create');
-        Route::post('/tickets/store', [SupportController::class, 'store'])->name('support.tickets.store');
+        // Routes accessible by ADMIN and MANAGER only
+        Route::middleware(['check.role:admin,manager'])->group(function () {
+            Route::get('/tickets', [SupportController::class, 'allTicketsList'])->name('support.tickets.list');
+            Route::get('/tickets/getData', [SupportController::class, 'getAllTicketsData'])->name('support.tickets.allDatas');
+            Route::get('/tickets/assigned', [SupportController::class, 'assignedTicketsList'])->name('support.tickets.assigned');
+            Route::get('/tickets/assigned/getData', [SupportController::class, 'getAssignedTicketsData'])->name('support.tickets.assignedDatas');
+            Route::get('/tickets/view-admin/{id}', [SupportController::class, 'viewTicketAdmin'])
+                ->where('id', '.*')
+                ->name('support.tickets.view-admin');
+            Route::put('/tickets/update/{ticketId}', [SupportController::class, 'updateTicket'])->name('support.tickets.update');
+        });
 
-        // PUT API
-        Route::put('/tickets/update/{ticketId}', [SupportController::class, 'updateTicket'])->name('support.tickets.update');
+        // Routes accessible by ADMIN only
+        Route::middleware(['check.role:admin'])->group(function () {
+            Route::delete('/tickets/delete/{ticketId}', [SupportController::class, 'deleteTicket'])->name('support.tickets.delete');
+            Route::put('/tickets/close/{id}', [SupportController::class, 'closeTicket'])
+                ->where('id', '.*')
+                ->name('support.tickets.close');
+        });
 
-        // DELETE API
-        Route::delete('/tickets/delete/{ticketId}', [SupportController::class, 'deleteTicket'])->name('support.tickets.delete');
-
-        // Close Ticket API
-        Route::put('/tickets/close/{id}', [SupportController::class, 'closeTicket'])
-            ->where('id', '.*')
-            ->name('support.tickets.close');
+        Route::post('/tickets/reply', [SupportController::class, 'submitReply'])
+            ->name('support.tickets.reply');
+        Route::get('/tickets/attachment/{attachmentId}', [SupportController::class, 'downloadAttachment'])
+            ->name('support.tickets.download.reply.attachment');
     });
 
     // SalesOrders

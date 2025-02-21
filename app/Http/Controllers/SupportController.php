@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\MikrotikApiService;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Router;
 use App\Models\DhcpClient;
@@ -12,6 +13,7 @@ use App\Models\FirewallList;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class SupportController extends Controller
 {
@@ -24,7 +26,14 @@ class SupportController extends Controller
 
     public function creatTicket()
     {
-        return view('pages/support/create-tickets');
+        // Get routers based on user's group
+        $routers = DB::table('users')
+            ->join('m_router', 'users.idusergrouping', '=', 'm_router.idusergrouping')
+            ->where('users.id', auth()->id())
+            ->select('m_router.idrouter', 'm_router.name as router_name')
+            ->get();
+
+        return view('pages/support/create-tickets', compact('routers'));
     }
 
     public function myTicketsList()
@@ -55,7 +64,9 @@ class SupportController extends Controller
                 'id_attachment_ticket',
                 'resolution_notes',
                 'last_reply_at',
-                'is_resolved'
+                'is_resolved',
+                'created_at',
+                'created_by',
             ])
             ->get();
 
@@ -110,7 +121,9 @@ class SupportController extends Controller
                 'id_attachment_ticket',
                 'resolution_notes',
                 'last_reply_at',
-                'is_resolved'
+                'is_resolved',
+                'created_at',
+                'created_by',
             ])
             ->where('created_by', auth()->user()->id)
             ->get();
@@ -156,12 +169,14 @@ class SupportController extends Controller
         ]);
     }
 
+    private function isAdmin($roleId) {
+        return in_array($roleId, [ 100, 101, 999, 888]);
+    }
+
     public function viewTicket($ticketId)
     {
-        // Decode the URL-encoded ticket ID
         $decodedTicketId = urldecode($ticketId);
         
-        // Get the ticket details
         $ticket = DB::table('t_support_tickets')
             ->select([
                 'id_ticket',
@@ -178,6 +193,7 @@ class SupportController extends Controller
                 'resolution_notes',
                 'last_reply_at',
                 'is_resolved',
+                'created_by',
                 'created_at',
                 'updated_at'
             ])
@@ -192,14 +208,34 @@ class SupportController extends Controller
             ], 404);
         }
 
-        return view('pages/support/views/ticket-detail', compact('ticket'));
+        // Get ticket replies
+        $replies = DB::table('t_support_ticket_replies')
+            ->select([
+                't_support_ticket_replies.*',
+                'users.username as admin_name'
+            ])
+            ->leftJoin('users', 't_support_ticket_replies.admin_id', '=', 'users.id')
+            ->where('ticket_id', $decodedTicketId)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $isAdmin = $this->isAdmin(auth()->user()->role);
+
+        return view('pages/support/views/ticket-detail', compact('ticket', 'replies', 'isAdmin'));
     }
     public function viewTicketAdmin($ticketId)
     {
-        // Decode the URL-encoded ticket ID
+        // Check if user is admin
+        if (!$this->isAdmin(auth()->user()->role)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized access',
+                'redirect' => route('support.tickets.my')
+            ], 403);
+        }
+
         $decodedTicketId = urldecode($ticketId);
         
-        // Get the ticket details
         $ticket = DB::table('t_support_tickets')
             ->select([
                 'id_ticket',
@@ -216,6 +252,7 @@ class SupportController extends Controller
                 'resolution_notes',
                 'last_reply_at',
                 'is_resolved',
+                'created_by',
                 'created_at',
                 'updated_at'
             ])
@@ -230,7 +267,20 @@ class SupportController extends Controller
             ], 404);
         }
 
-        return view('pages/support/views/ticket-detail-admin', compact('ticket'));
+        // Get ticket replies
+        $replies = DB::table('t_support_ticket_replies')
+            ->select([
+                't_support_ticket_replies.*',
+                'users.username as admin_name'
+            ])
+            ->leftJoin('users', 't_support_ticket_replies.admin_id', '=', 'users.id')
+            ->where('ticket_id', $decodedTicketId)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $isAdmin = true; // Always true for admin view
+
+        return view('pages/support/views/ticket-detail-admin', compact('ticket', 'replies', 'isAdmin'));
     }
 
     public function store(Request $request)
@@ -332,5 +382,105 @@ class SupportController extends Controller
                 'message' => 'Failed to close ticket: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function submitReply(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'ticket_id' => 'required',
+                'reply_message' => 'nullable|string',
+                'admin_notes' => 'nullable|string',
+                'attachment' => 'nullable|file|max:10240'
+            ]);
+
+            DB::beginTransaction();
+
+            $attachmentId = null;
+
+            // Handle file upload if present
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                
+                // Generate unique attachment ID using ticket_id
+                $date = Carbon::now()->format('ymd');
+                $attachmentId = "ATT/{$date}/" . $request->ticket_id;
+
+                // Get original file name
+                $originalName = $file->getClientOriginalName();
+                
+                // Store file with attachment ID as name
+                $fileName = $attachmentId . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('ticket-attachments', $fileName, 'public');
+
+                // Store attachment record
+                DB::table('t_attachment')->insert([
+                    'attachment_id' => $attachmentId,
+                    'attachment_name' => $originalName,
+                    'attachment_file' => $fileName,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+
+            // Insert reply with attachment ID
+            DB::table('t_support_ticket_replies')->insert([
+                'ticket_id' => $request->ticket_id,
+                'admin_id' => auth()->id(),
+                'reply_message' => $request->reply_message,
+                'attachment_id' => $attachmentId,
+                'admin_notes' => $request->admin_notes,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            // Update the ticket's last reply timestamp
+            DB::table('t_support_tickets')
+                ->where('id_ticket', $request->ticket_id)
+                ->update([
+                    'last_reply_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Reply submitted successfully'
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Reply submission failed: ' . $e->getMessage());
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to submit reply: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Add method to download attachments
+    public function downloadAttachment($attachmentId)
+    {
+        $attachment = DB::table('t_attachment')
+            ->where('attachment_id', $attachmentId)
+            ->first();
+
+        if (!$attachment) {
+            abort(404, 'Attachment not found');
+        }
+
+        $filePath = storage_path('app/public/ticket-attachments/' . $attachment->attachment_file);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        return response()->download($filePath, $attachment->attachment_name);
     }
 }
