@@ -72,10 +72,17 @@
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <svg class="shrink-0 h-6 w-6" viewBox="0 0 24 24">
-                                            <path class="fill-current text-slate-600"
-                                                d="M19 5h1v14h-2V7.414L5.707 19.707 5 19H4V5h2v11.586L18.293 4.293 19 5Z" />
-                                            <path class="fill-current text-slate-400"
-                                                d="M5 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm14 0a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM5 23a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm14 0a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z" />
+                                            @if ($router->is_online)
+                                                <!-- Better checkmark icon -->
+                                                <svg class="shrink-0 h-6 w-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            @else
+                                                <!-- Red disconnected icon -->
+                                                <svg class="shrink-0 h-6 w-6 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            @endif
                                         </svg>
                                         <span class="text-sm font-medium ml-2 duration-200">
                                             {{ $router->name }}

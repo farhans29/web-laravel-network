@@ -207,6 +207,112 @@
                 lengthMenu: [[30, 50, 100, -1], [30, 50, 100, 'All']],
                 autoWidth: false // Disable automatic resizing
             });
+
+            $('#deviceTable').on("click", ".btn-make",  function () {
+                const id = $(this).data("id");
+                const routerid = $(this).data("routerid");
+                $("input[name!='_token']").val("");
+                Swal.fire({
+                    title: 'Please confirm!',
+                    text: "Make this IP static?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            headers: {
+                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                            },
+                            // type: "POST",
+                            // url: `/mikrotik/devices/make-static/${id}/${routerid}`,
+                            type: "GET",
+                            url: `/mikrotik/interface/${routerid}`,
+                            success: function (response) {
+                                console.info("response: ", response)
+                                const { status, message } = response;
+                                if (status == 1) {
+                                    Swal.fire({
+                                        icon : 'success',
+                                        title: 'Success!',
+                                        text: `IP has been set to static.`,
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'OK'
+                                    });
+                                    window.location.reload(true);
+                                } else if (status == 2) {
+                                    Swal.fire({
+                                        icon : 'error',
+                                        title: 'Cannot set to static!',
+                                        text: `Please refresh the page and contact an admin.`,
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            },
+                            error: function (data) {
+                                console.info("error: ", data)
+                            }
+                        })
+
+                    }
+                })
+            });
+
+            $('#deviceTable').on("click", ".btn-delete",  function () {
+                const id = $(this).data("id");
+                const routerid = $(this).data("routerid");
+                $("input[name!='_token']").val("");
+                Swal.fire({
+                    title: 'Please confirm!',
+                    text: "Remove static IP?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            headers: {
+                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                            },
+                            // type: "POST",
+                            // url: `/mikrotik/devices/delete-static/${id}/${routerid}`,
+                            type: "GET",
+                            url: `/mikrotik/interface/${routerid}`,
+                            success: function (response) {
+                                console.info("response: ", response)
+                                const { status, message } = response;
+                                if (status == 1) {
+                                    Swal.fire({
+                                        icon : 'success',
+                                        title: 'Success!',
+                                        text: `IP has been removed.`,
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'OK'
+                                    });
+                                    window.location.reload(true);
+                                } else if (status == 2) {
+                                    Swal.fire({
+                                        icon : 'error',
+                                        title: 'Cannot set to dynamic!',
+                                        text: `Please refresh the page and contact an admin.`,
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            },
+                            error: function (data) {
+                                console.info("error: ", data)
+                            }
+                        })
+
+                    }
+                })
+            });
         });
     </script>
 

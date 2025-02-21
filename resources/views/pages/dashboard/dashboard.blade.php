@@ -113,23 +113,26 @@
         <div class="grid grid-cols-12 gap-6">
             @foreach ($dataRouter as $router)
                 <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
-                    <header class="px-5 py-4 border-b border-slate-100">
+                    <header class="px-3 py-4 border-b border-slate-100">
                         <h2 class="font-semibold text-slate-800">{{ $router->name }}</h2>
+                        <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25">
+                            {{ $router->idrouter }}
+                        </header>
+                        <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25">
+                            {{ $router->type }}
+                        </header>
                     </header>
                     <div class="p-3">
                         <div class="grow">
-                            <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-2">
-                                {{ $router->idrouter }} - {{ $router->type }}
-                            </header>
                             <ul class="my-1">
-                                <h5>Daily</h5>
+                                <header class="px-3 border-b border-slate-100" style="font-size: 0.9rem">Daily</header>
                                 <img id="graphImage1-{{ $router->idrouter }}" 
                                     class="object-cover object-center w-full h-full"
                                     src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/daily.gif?{{ time() }}" 
                                     alt="Daily Graph">
                             </ul>
                             <ul class="my-1">
-                                <h5>Weekly</h5>
+                                <header class="px-3 border-b border-slate-100" style="font-size: 0.9rem">Weekly</header>
                                 <img id="graphImage2-{{ $router->idrouter }}" 
                                     class="object-cover object-center w-full h-full"
                                     src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/weekly.gif?{{ time() }}" 
@@ -140,31 +143,6 @@
                 </div>
             @endforeach
         </div>
-
-        {{-- <h1 class="text-xl font-bold text-slate-800 border-b border-slate-300 pb-2 mt-8">Weekly</h1>
-        <div class="grid grid-cols-12 gap-6">
-            @foreach ($dataRouter as $router)
-                <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
-                    <header class="px-5 py-4 border-b border-slate-100">
-                        <h2 class="font-semibold text-slate-800">{{ $router->name }}</h2>
-                    </header>
-                    <div class="p-3">
-                        <div class="grow">
-                            <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-2">
-                                {{ $router->idrouter }} - {{ $router->type }}
-                            </header>
-                            <ul class="my-1">
-                                <img id="graphImage2-{{ $router->idrouter }}" 
-                                    class="object-cover object-center w-full h-full"
-                                    src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/weekly.gif?{{ time() }}" 
-                                    alt="Daily Graph">
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div> --}}
-
 
     </div>
     @section('js-page')

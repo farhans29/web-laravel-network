@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Services\MikrotikApiService;
 use App\Models\Router;
 
 class ContentServiceProvider extends ServiceProvider
@@ -36,7 +37,12 @@ class ContentServiceProvider extends ServiceProvider
                 $groupId = auth()->user()->idusergrouping;
                 
                 // Retrieve routers for the authenticated user's group
+                $mikrotikService = new MikrotikApiService();
                 $dataRouters = Router::where('idusergrouping', $groupId)->get();
+                foreach ($dataRouters as $router) {
+                    $client = $mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+                    $router->is_online = $client ? true : false;
+                }
                 
                 // dd($dataRouters);
             } else {

@@ -80,6 +80,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/device/{routerId}', [MikrotikController::class, 'getConnectedDevice'])->name('mikrotik.device');
         Route::get('/devices/getData', [MikrotikController::class, 'getConnectedDevicesData'])->name('mikrotik.devices-data');  
         Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');   
+        Route::post('/devices/make-static/{leaseId}/{routerId}', [MikrotikController::class, 'setStatic'])->name('mikrotik.set-static');
+        Route::post('/devices/delete-static/{leaseId}/{routerId}', [MikrotikController::class, 'deleteStatic'])->name('mikrotik.delete-static');
         
         // Firewall List
         Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');   

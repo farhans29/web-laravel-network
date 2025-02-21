@@ -189,41 +189,35 @@ class MikrotikController extends Controller
                             })
 
                             //Add Action Column
-                            ->addColumn('action', function ($row) {
+                            ->addColumn('action', function ($row) use ($routerId) {
                                 if ($row->dynamic === 'false') {
                                     return '
                                             <div class="flex flex-row justify-center space-x-2">
-                                                <a href="/ga/rab-approval/list/printedenforced/{{ $row->id_dhcp }}" 
-                                                target="_blank" 
-                                                class="btn btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
+                                                <button class="btn btn-sm btn-delete text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
                                                 style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;">
                                                     🖥️ <span class="ml-2">Delete Static IP</span>
-                                                </a>
+                                                </button>
                                                 
-                                                <a href="/ga/rab-approval/list/printedenforced/{{ $row->id_dhcp }}" 
-                                                target="_blank" 
-                                                class="btn btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
+                                                <button class="btn btn-sm btn-change text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
                                                 style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;">
                                                     🌏 <span class="ml-2">Change Internet Status</span>
-                                                </a>
+                                                </button>
                                             </div>
                                             ';
                                 } else {
                                     return '
                                             <div class="flex flex-row justify-center space-x-2">
-                                                <a href="/ga/rab-approval/list/printedenforced/{{ $row->id_dhcp }}" 
-                                                target="_blank" 
-                                                class="btn btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
-                                                style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;">
+                                                <button class="btn btn-sm btn-make text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
+                                                style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;"
+                                                    data-id="' . $row->id_dhcp . '"
+                                                    data-routerid="' . $routerId . '">
                                                     🖥️ <span class="ml-2">Make Static IP</span>
-                                                </a>
+                                                </button>
                                                 
-                                                <a href="/ga/rab-approval/list/printedenforced/{{ $row->id_dhcp }}" 
-                                                target="_blank" 
-                                                class="btn btn-sm text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
+                                                <button class="btn btn-sm btn-change text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
                                                 style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;">
                                                     🌏 <span class="ml-2">Change Internet Status</span>
-                                                </a>
+                                                </button>
                                             </div>
                                             ';
                                 }
@@ -566,6 +560,70 @@ class MikrotikController extends Controller
             // 'data' => $ppp,
             $ppp
         ], 200);
+    }
+    
+    public function setStatic($leaseId, $routerId)
+    {
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+        
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
+        }
+
+        // Run Command
+        $results = $this->mikrotikService->makeStatic($client, $leaseId);
+        
+        if ($results) {
+            return response()->json([
+                'status' => 1,
+                'message' => "IP is now static!",
+            ]);            
+        } else {
+            return response()->json([
+                'status' => 2,
+                'message' => "IP is not dynamic or not found",
+            ]);
+        }
+    }
+
+    public function deleteStatic($leaseId, $routerId)
+    {
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+        
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
+        }
+
+        // Run Command
+        $results = $this->mikrotikService->makeStatic($client, $leaseId);
+
+        if ($results) {
+            return response()->json([
+                'status' => 1,
+                'message' => "IP is now removed!",
+            ]);            
+        } else {
+            return response()->json([
+                'status' => 2,
+                'message' => "IP is not static or not found",
+            ]);
+        }
     }
 
 }

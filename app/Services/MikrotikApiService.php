@@ -21,7 +21,7 @@ class MikrotikApiService
             return $client;
         } catch (\Exception $e) {
             // dd($host, $username, $password, $port, $e->getMessage());
-            dd($host,$e->getMessage());
+            // dd($host,$e->getMessage());
             // return false;
         }
     }
@@ -79,6 +79,34 @@ class MikrotikApiService
         // Send query to RouterOS and parse response
         $response = $client->query('/ppp/secret/print')->read();
         return $response;
+    }
+
+    public function makeStatic($client, $leaseId)
+    {
+        try {
+            // Set the lease to static
+            $client->query('/ip/dhcp-server/lease/set', [
+                '.id' => $leaseId,
+                'disabled' => 'no',
+                'dynamic' => 'no'
+            ])->read();
+    
+            return response()->json(['success' => 'Lease set to static', 'ip' => $leaseId], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function removeStatic($client, $leaseId)
+    {
+        try {
+            // Set the lease to static
+            $client->query('/ip/dhcp-server/lease/remove', ['.id' => $leaseId])->read();
+    
+            return response()->json(['success' => 'Lease set to dynamic', 'ip' => $leaseId], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
 }
