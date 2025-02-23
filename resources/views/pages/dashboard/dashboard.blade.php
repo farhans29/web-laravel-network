@@ -66,56 +66,17 @@
             <!-- Right: Actions -->
             <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
 
-                <!-- Filter button -->
-                {{-- <x-dropdown-filter align="left" /> --}}
-
-                <!-- Datepicker built with flatpickr -->
-                {{-- <x-datepicker /> --}}
-                {{-- <form class="flex items-center mb-3" id="form-filter">
-                    <label class="block text-sm font-medium text-lg mb-1" for="form-search">Select Year For Data Chart :</label>
-                    <div class="relative ml-2 w-3/4 md:w-1/4">
-                        <select id="form-search" name = "year" class="form-input w-60">
-                            <option value="2020" {{ date('Y') == '2020' ? 'selected' : '' }}>2020</option>
-                            <option value="2021" {{ date('Y') == '2021' ? 'selected' : '' }}>2021</option>
-                            <option value="2022" {{ date('Y') == '2022' ? 'selected' : '' }}>2022</option>
-                            <option value="2023" {{ date('Y') == '2023' ? 'selected' : '' }}>2023</option>
-                            <option value="2024" {{ date('Y') == '2024' ? 'selected' : '' }}>2024</option>
-                            <option value="2025" {{ date('Y') == '2025' ? 'selected' : '' }}>2025</option>
-                            <option value="2026" {{ date('Y') == '2026' ? 'selected' : '' }}>2026</option>
-                            <option value="2027" {{ date('Y') == '2027' ? 'selected' : '' }}>2027</option>
-                            <option value="2028" {{ date('Y') == '2028' ? 'selected' : '' }}>2028</option>
-                            <option value="2029" {{ date('Y') == '2029' ? 'selected' : '' }}>2029</option>
-                            <option value="2030" {{ date('Y') == '2030' ? 'selected' : '' }}>2030</option>
-                            <option value="2031" {{ date('Y') == '2031' ? 'selected' : '' }}>2031</option>
-                            <option value="2032" {{ date('Y') == '2032' ? 'selected' : '' }}>2032</option>
-                            <option value="2033" {{ date('Y') == '2033' ? 'selected' : '' }}>2033</option>
-                            <option value="2034" {{ date('Y') == '2034' ? 'selected' : '' }}>2034</option>
-                            <option value="2035" {{ date('Y') == '2035' ? 'selected' : '' }}>2035</option>
-                        </select>
-                    </div>
-                </form> --}}
-                
-
-                <!-- Add view button -->
-                {{-- <button class="btn bg-indigo-500 hover:bg-indigo-600 text-white">
-                    <svg class="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
-                        <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
-                    </svg>
-                    <span class="hidden xs:block ml-2">Add View</span>
-                </button> --}}
-                
             </div>
 
         </div>
         
         <!-- Cards -->
-        <h1 class="text-xl font-bold text-slate-800 border-b border-slate-300 pb-2 mt-8">Daily</h1>
         <div class="grid grid-cols-12 gap-6">
             @foreach ($dataRouter as $router)
                 <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
                     <header class="px-3 py-4 border-b border-slate-100">
                         <h2 class="font-semibold text-slate-800">{{ $router->name }}</h2>
-                        <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25">
+                        <header class="py-1 text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25">
                             {{ $router->idrouter }}
                         </header>
                         <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25">
@@ -157,8 +118,8 @@
                             this.src = "{{ asset('images/no-image-found.png') }}";
 
                             // Force custom dimensions
-                            this.style.width = "304px";  // Set width
-                            this.style.height = "103.36px"; // Set height
+                            this.style.width = "500px";  // Set width
+                            this.style.height = "170px"; // Set height
                         }
                     }, 300); // Slight delay to ensure image fully loads
                 };
@@ -175,8 +136,8 @@
                             this.src = "{{ asset('images/no-image-found.png') }}";
                             
                             // Force custom dimensions
-                            this.style.width = "304px";  // Set width
-                            this.style.height = "103.36px"; // Set height
+                            this.style.width = "500px";  // Set width
+                            this.style.height = "170px"; // Set height
                         }
                     }, 300); // Slight delay to ensure image fully loads
                 };

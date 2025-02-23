@@ -72,17 +72,17 @@
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <svg class="shrink-0 h-6 w-6" viewBox="0 0 24 24">
-                                            @if ($router->is_online)
+                                            {{-- @if ($router->is_online) --}}
                                                 <!-- Better checkmark icon -->
                                                 <svg class="shrink-0 h-6 w-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                                                 </svg>
-                                            @else
+                                            {{-- @else
                                                 <!-- Red disconnected icon -->
                                                 <svg class="shrink-0 h-6 w-6 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                                                 </svg>
-                                            @endif
+                                            @endif --}}
                                         </svg>
                                         <span class="text-sm font-medium ml-2 duration-200">
                                             {{ $router->name }}
