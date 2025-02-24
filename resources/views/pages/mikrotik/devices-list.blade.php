@@ -226,10 +226,10 @@
                             headers: {
                                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                             },
-                            // type: "POST",
-                            // url: `/mikrotik/devices/make-static/${id}/${routerid}`,
-                            type: "GET",
-                            url: `/mikrotik/interface/${routerid}`,
+                            type: "POST",
+                            url: `/mikrotik/devices/make-static/${id}/${routerid}`,
+                            // type: "GET",
+                            // url: `/mikrotik/interface/${routerid}`,
                             success: function (response) {
                                 console.info("response: ", response)
                                 const { status, message } = response;
@@ -279,10 +279,10 @@
                             headers: {
                                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                             },
-                            // type: "POST",
-                            // url: `/mikrotik/devices/delete-static/${id}/${routerid}`,
-                            type: "GET",
-                            url: `/mikrotik/interface/${routerid}`,
+                            type: "POST",
+                            url: `/mikrotik/devices/delete-static/${id}/${routerid}`,
+                            // type: "GET",
+                            // url: `/mikrotik/interface/${routerid}`,
                             success: function (response) {
                                 console.info("response: ", response)
                                 const { status, message } = response;

@@ -11,6 +11,7 @@ use App\Models\DhcpClient;
 use App\Models\FirewallList;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class MikrotikController extends Controller
 {
@@ -194,7 +195,9 @@ class MikrotikController extends Controller
                                     return '
                                             <div class="flex flex-row justify-center space-x-2">
                                                 <button class="btn btn-sm btn-delete text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
-                                                style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;">
+                                                style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;"
+                                                    data-id="' . $row->id_dhcp . '"
+                                                    data-routerid="' . $routerId . '">
                                                     🖥️ <span class="ml-2">Delete Static IP</span>
                                                 </button>
                                                 
@@ -580,8 +583,10 @@ class MikrotikController extends Controller
 
         // Run Command
         $results = $this->mikrotikService->makeStatic($client, $leaseId);
-        
-        if ($results) {
+        // dd($results);
+        // \Log::info("MikroTik Response:", $results);
+
+        if ($results === "1") {
             return response()->json([
                 'status' => 1,
                 'message' => "IP is now static!",
@@ -611,12 +616,12 @@ class MikrotikController extends Controller
         }
 
         // Run Command
-        $results = $this->mikrotikService->makeStatic($client, $leaseId);
+        $results = $this->mikrotikService->removeStatic($client, $leaseId);
 
-        if ($results) {
+        if ($results === "1") {
             return response()->json([
                 'status' => 1,
-                'message' => "IP is now removed!",
+                'message' => "IP is now dynamic!",
             ]);            
         } else {
             return response()->json([

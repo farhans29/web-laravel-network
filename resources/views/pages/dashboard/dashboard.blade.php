@@ -77,10 +77,10 @@
                     <header class="px-3 py-4 border-b border-slate-100">
                         <h2 class="font-semibold text-slate-800">{{ $router->name }}</h2>
                         <header class="py-1 text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25">
-                            {{ $router->idrouter }}
+                            
                         </header>
                         <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25">
-                            {{ $router->type }}
+                            Serial #:{{ $router->type }} | Model: {{ $router->idrouter }}
                         </header>
                     </header>
                     <div class="p-3">

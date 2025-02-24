@@ -85,15 +85,29 @@ class MikrotikApiService
     {
         try {
             // Set the lease to static
-            $client->query('/ip/dhcp-server/lease/set', [
-                '.id' => $leaseId,
-                'disabled' => 'no',
-                'dynamic' => 'no'
-            ])->read();
-    
-            return response()->json(['success' => 'Lease set to static', 'ip' => $leaseId], 200);
+            // $leases = $client->query('/ip/dhcp-server/lease/print')->read();
+
+            // $filteredLeases = array_map(fn($lease) => [
+            //     'id' => $lease['.id'] ?? null,
+            //     'dynamic' => $lease['dynamic'] ?? null
+            // ], $leases);
+            // dd($filteredLeases);
+
+            // if (empty($lease)) {
+            //     return response()->json(['error' => 'Lease ID not found'], 404);
+            // }
+
+            $query = new Query([
+                '/ip/dhcp-server/lease/make-static',
+                '=.id=' . $leaseId,  // Dynamically set the lease ID
+            ]);            
+
+            $response = $client->query($query)
+                                ->read();
+
+            return "1";
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return ['error' => $e->getMessage()];
         }
     }
 
@@ -101,9 +115,15 @@ class MikrotikApiService
     {
         try {
             // Set the lease to static
-            $client->query('/ip/dhcp-server/lease/remove', ['.id' => $leaseId])->read();
+            $query = new Query([
+                '/ip/dhcp-server/lease/remove',
+                '=.id=' . $leaseId,  // Dynamically set the lease ID
+            ]);            
+
+            $response = $client->query($query)
+                                ->read();
     
-            return response()->json(['success' => 'Lease set to dynamic', 'ip' => $leaseId], 200);
+            return "1";
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
