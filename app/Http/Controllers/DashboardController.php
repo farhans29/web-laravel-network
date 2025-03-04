@@ -43,11 +43,10 @@
 
                     $traffic = DailyTraffic::where('idrouter', $router->idrouter)
                         ->whereDate('datetime', $yesterday)
-                        ->selectRaw('SUM(tx_bytes) as total_tx, SUM(rx_bytes) as total_rx')
+                        ->selectRaw('SUM(tx_bytes + rx_bytes) as total')
                         ->first();
 
-                    $router->tx = $this->formatBytes($traffic->total_tx);
-                    $router->rx = $this->formatBytes($traffic->total_rx);
+                    $router->total = $this->formatBytes($traffic->total);
                 }
 
             // dd($dataRouter);

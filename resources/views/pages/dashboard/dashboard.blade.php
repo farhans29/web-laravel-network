@@ -143,18 +143,24 @@
                     </div>
                     <!-- Info Boxes (Now perfectly aligned with graphs) -->
                     <div class="flex flex-col w-1/4">
-                        <div class="flex items-center justify-center text-center border border-slate-300 text-sm text-gray-700 p-3 rounded-lg" 
+                        <!-- Connected Clients -->
+                        <div class="flex flex-col justify-center items-center border border-slate-600 text-white p-3 rounded-lg bg-gray-800"
                             style="height: calc(100% / 2 - 4px);">
-                            Connected Client: {{ $router->count }}
-                        </div>
-                        <div class="flex flex-col justify-center border border-slate-300 text-sm text-gray-700 p-3 rounded-lg mt-2"
-                            style="height: calc(100% / 2 - 4px);">
-                            <div class="flex flex-col items-start mx-auto">
-                                <div>Transferred: {{ $router->tx }}</div>
-                                <div>Received: {{ $router->rx }}</div>
+                            <div class="flex flex-col items-center justify-center flex-1">
+                                <div class="text-2xl font-bold">{{ $router->count }}</div>
                             </div>
+                            <div class="text-sm pb-2">Connected Clients</div>
                         </div>
-                    </div>
+                    
+                        <!-- Transferred Data -->
+                        <div class="flex flex-col justify-center items-center border border-slate-600 text-white p-3 rounded-lg mt-2 bg-gray-800"
+                            style="height: calc(100% / 2 - 4px);">
+                            <div class="flex flex-col items-center justify-center flex-1">
+                                <div class="text-2xl font-bold">{{ $router->total }}<span class="text-lg font-semibold"></span></div>
+                            </div>
+                            <div class="text-sm pb-2">Transferred</div>
+                        </div>
+                    </div>                    
                 </div>
             </div>
             @endforeach
