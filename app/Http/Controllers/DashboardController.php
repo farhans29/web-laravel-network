@@ -6,6 +6,8 @@
     use Illuminate\Http\Request;
     use Illuminate\Support\Facades\Http;
     use App\Models\DataFeed;
+    use App\Models\DailyTraffic;
+    use App\Services\MikrotikApiService;
     use Carbon\Carbon;
     use Illuminate\Support\Facades\DB;
     use Illuminate\Support\Facades\Auth;
@@ -30,7 +32,23 @@
             $tomorrow = date('Y-m-d', strtotime($today . "+1 days"));
             $tomorrow5days = date('Y-m-d', strtotime($today . "+5 days"));
 
+            
+            $mikrotikService = new MikrotikApiService();
+
             $dataRouter = Router::where('idusergrouping', $groupId)->get();
+            $yesterday = Carbon::yesterday()->toDateString();
+            foreach ($dataRouter as $router) {
+                    $client = $mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+                    $router->count = $mikrotikService->getBoundLease($client);
+
+                    $traffic = DailyTraffic::where('idrouter', $router->idrouter)
+                        ->whereDate('datetime', $yesterday)
+                        ->selectRaw('SUM(tx_bytes) as total_tx, SUM(rx_bytes) as total_rx')
+                        ->first();
+
+                    $router->tx = $this->formatBytes($traffic->total_tx);
+                    $router->rx = $this->formatBytes($traffic->total_rx);
+                }
 
             // dd($dataRouter);
 
@@ -99,6 +117,15 @@
                 'labels' => $arrayLabel,
                 'data' => $arrayData
             ]);
+        }
+
+        function formatBytes($bytes, $precision = 2) {
+            if ($bytes <= 0) return '0 B'; // Handle zero and negative values properly
+        
+            $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            $factor = max(0, floor(log($bytes, 1024))); // Avoid negative index
+        
+            return sprintf("%.{$precision}f", $bytes / pow(1024, $factor)) . ' ' . $units[$factor];
         }
 
     }

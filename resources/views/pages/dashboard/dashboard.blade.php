@@ -71,14 +71,13 @@
         </div>
         
         <!-- Cards -->
+        {{-- Old Cards
         <div class="grid grid-cols-12 gap-6">
             @foreach ($dataRouter as $router)
                 <div class="flex flex-col col-span-full sm:col-span-6 xl:col-span-4 bg-white shadow-lg rounded-sm border border-slate-200">
                     <header class="px-3 py-4 border-b border-slate-100">
                         <h2 class="font-semibold text-slate-800">{{ $router->name }}</h2>
-                        <header class="py-1 text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25">
-                            
-                        </header>
+                        <header class="py-1 text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25"></header>
                         <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm font-semibold p-0.25">
                             Serial #:{{ $router->type }} | Model: {{ $router->idrouter }}
                         </header>
@@ -99,13 +98,71 @@
                                     src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/weekly.gif?{{ time() }}" 
                                     alt="Weekly Graph">
                             </ul>
+                            <!-- Additional Info Boxes -->
+                            <div class="border-t border-slate-200 mt-2 pt-2 flex justify-center space-x-2">
+                                <div class="w-1/2 flex items-center justify-center text-center align-middle border border-slate-300 py-2 text-xs text-slate-500">
+                                    Connected Client: 100
+                                </div>
+                                <div class="w-1/2 text-center border border-slate-300 py-1 text-xs text-slate-500 flex flex-col">
+                                    <div>Transferred: 100</div>
+                                    <div>Received: 50</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             @endforeach
+        </div> --}}
+        {{-- New Cards --}}
+        <div class="grid grid-cols-2 gap-6 w-full">
+            @foreach ($dataRouter as $router)
+            <div class="w-full flex flex-col bg-white shadow-lg rounded-sm border border-slate-200">
+                <header class="px-3 py-4 border-b border-slate-100">
+                    <h2 class="font-medium text-slate-700 text-lg">{{ $router->name }}</h2>
+                    <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm p-1">
+                        Serial #: {{ $router->type }} | Model: {{ $router->idrouter }}
+                    </header>
+                </header>
+                <div class="p-4 flex gap-4">
+                    <!-- Graph Container -->
+                    <div class="flex flex-col w-3/4">
+                        <header class="text-sm border-b font-semibold text-gray-600">Daily</header>
+                        <div class="relative">
+                            <img id="graphImage1-{{ $router->idrouter }}" 
+                                class="object-cover object-center w-full"
+                                src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/daily.gif?{{ time() }}" 
+                                alt="Daily Graph">
+                        </div>
+                        <header class="text-sm border-b font-semibold text-gray-600 mt-2">Weekly</header>
+                        <div class="relative">
+                            <img id="graphImage2-{{ $router->idrouter }}" 
+                                class="object-cover object-center w-full"
+                                src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/weekly.gif?{{ time() }}" 
+                                alt="Weekly Graph">
+                        </div>
+                    </div>
+                    <!-- Info Boxes (Now perfectly aligned with graphs) -->
+                    <div class="flex flex-col w-1/4">
+                        <div class="flex items-center justify-center text-center border border-slate-300 text-sm text-gray-700 p-3 rounded-lg" 
+                            style="height: calc(100% / 2 - 4px);">
+                            Connected Client: {{ $router->count }}
+                        </div>
+                        <div class="flex flex-col justify-center border border-slate-300 text-sm text-gray-700 p-3 rounded-lg mt-2"
+                            style="height: calc(100% / 2 - 4px);">
+                            <div class="flex flex-col items-start mx-auto">
+                                <div>Transferred: {{ $router->tx }}</div>
+                                <div>Received: {{ $router->rx }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
         </div>
+        
 
     </div>
+
     @section('js-page')
     <script>
         document.addEventListener("DOMContentLoaded", function () {

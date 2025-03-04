@@ -85,6 +85,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         
         // Firewall List
         Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');   
+        Route::post('/firewall/change-firewall/{routerId}', [MikrotikController::class, 'setFirewallList'])->name('mikrotik.change-firewall');
+        Route::get('/firewall/get-firewall-options/{routerid}', [MikrotikController::class, 'getFirewallOptions'])->name('mikrotik.firewall-list');
         
         // PPP List
         Route::get('/l2tp/{routerId}', [MikrotikController::class, 'getL2TP'])->name('mikrotik.l2tp');    
