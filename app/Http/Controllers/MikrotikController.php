@@ -469,23 +469,18 @@ class MikrotikController extends Controller
     }
 
     public function getUsageStatsData(Request $request, $routerId) {
-        // Get month input from request
-        $filterMonth = $request->input('monthInput');
-        $monthNow = date('m');
-        $month = $filterMonth ?? $monthNow;
-
         // Query usage statistics from `t_traffic_logs_daily`
         $dataStats = DB::table('t_traffic_logs_daily')
             ->selectRaw("
                 idrouter,
                 int_type,
-                tx_bytes as Upload,
-                rx_bytes as Download,
-                datetime as date
+                SUM(tx_bytes) as Upload,
+                SUM(rx_bytes) as Download,
+                DATE(datetime) as date
             ")
             ->where('idrouter', $routerId)
-            ->whereRaw("MONTH(datetime) = ?", [$month])
-            ->orderBy('datetime', 'asc') // Sort by date first
+            ->groupBy('date', 'int_type') // Group by date and interface type
+            ->orderBy('date', 'asc') // Sort by date first
             ->orderBy('int_type', 'asc') // Then sort by interface type
             ->get();
 
