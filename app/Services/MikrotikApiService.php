@@ -54,9 +54,17 @@ class MikrotikApiService
         // return array_slice($leases, 0, 10); // Return only the first 10
     }
 
-    public function getLeaseHistory($client)
+    public function getBoundLease($client)
     {
-        return $client->query('/ip/dhcp-server/lease/print where !active')->read();
+        $leases = $client->query('/ip/dhcp-server/lease/print')->read();
+    
+        // Filter leases where the 'status' is 'bound'
+        $boundLeases = array_filter($leases, function ($lease) {
+            return isset($lease['status']) && $lease['status'] === 'bound';
+        });
+        // dd($boundLeases);
+
+        return count($boundLeases);
     }
 
     
@@ -81,7 +89,7 @@ class MikrotikApiService
         return $response;
     }
 
-    public function makeStatic($client, $leaseId)
+    public function makeStatic($client, $leaseId, $comment)
     {
         try {
             // Set the lease to static
@@ -97,13 +105,25 @@ class MikrotikApiService
             //     return response()->json(['error' => 'Lease ID not found'], 404);
             // }
 
-            $query = new Query([
+            // Step 1: Make the lease static
+            $query1 = new Query([
                 '/ip/dhcp-server/lease/make-static',
                 '=.id=' . $leaseId,  // Dynamically set the lease ID
-            ]);            
+            ]);
 
-            $response = $client->query($query)
-                                ->read();
+            // Execute the first query
+            $response1 = $client->query($query1)->read();
+
+            // Step 2: Set the comment separately
+            $query2 = new Query([
+                '/ip/dhcp-server/lease/set',
+                '=.id=' . $leaseId,  
+                '=comment=' . $comment, // Insert comment after making static
+            ]);
+
+            // Execute the second query
+            $response2 = $client->query($query2)->read();
+            // dd($response1, $response2);
 
             return "1";
         } catch (\Exception $e) {
@@ -120,10 +140,53 @@ class MikrotikApiService
                 '=.id=' . $leaseId,  // Dynamically set the lease ID
             ]);            
 
-            $response = $client->query($query)
-                                ->read();
+            $client->query($query)->read();
     
             return "1";
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    
+    public function addOrUpdateFirewallList($client, $ip, $targetList)
+    {
+
+        try {
+            // Step 1: Check if the IP exists in the firewall
+            $queryCheck = (new Query('/ip/firewall/address-list/print'))
+                ->where('address', $ip);
+
+            $existing = $client->query($queryCheck);
+
+            if (count($existing) > 0) {
+                $id = $existing[0]['.id'];
+                $currentList = $existing[0]['list'];
+
+                if ($currentList === $targetList) {
+                    // IP is already in the correct list, do nothing
+                    return response()->json(['message' => "IP $ip is already in the '$targetList' list."], 200);
+                } else {
+                    // Step 2: Move IP to a different list (update)
+                    $queryUpdate = (new Query('/ip/firewall/address-list/set'))
+                        ->equal('.id', $id)
+                        ->equal('list', $targetList);
+
+                    $client->query($queryUpdate);
+
+                    return response()->json(['message' => "IP $ip moved from '$currentList' to '$targetList'."]);
+                }
+            } else {
+                // Step 3: Add the IP if it's not in any list
+                $queryAdd = (new Query('/ip/firewall/address-list/add'))
+                    ->equal('list', $targetList)
+                    ->equal('address', $ip)
+                    ->equal('comment', "Added via Laravel API");
+
+                $client->query($queryAdd);
+
+                return response()->json(['message' => "IP $ip added to '$targetList' list."]);
+            }
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

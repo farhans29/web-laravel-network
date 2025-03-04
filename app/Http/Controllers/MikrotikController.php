@@ -138,6 +138,10 @@ class MikrotikController extends Controller
     {
         $router = Router::where('idrouter', $routerId)->first();
 
+        $firewalls = DB::table('m_router_firewall')
+            ->where('idrouter', $routerId)
+            ->get();
+
         // $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
 
         // if (!$client) {
@@ -151,7 +155,7 @@ class MikrotikController extends Controller
         $this->insertConnectedDevicesDB($routerId);
         $this->insertFirewallListDB($routerId);
 
-        return view('pages/mikrotik/devices-list', compact('router'));
+        return view('pages/mikrotik/devices-list', compact('router', 'firewalls'));
     }
     
     public function getConnectedDevicesData(Request $request)
@@ -166,6 +170,8 @@ class MikrotikController extends Controller
                         't_dhcp_list.host_name',
                         't_dhcp_list.server',
                         't_dhcp_list.dynamic',
+                        't_dhcp_list.comment',
+                        't_firewall_addresslist.id_firewall',
                         't_firewall_addresslist.list as status'
                     )
                     ->where('t_dhcp_list.idrouter', '=', $routerId)
@@ -200,26 +206,118 @@ class MikrotikController extends Controller
                                                     data-routerid="' . $routerId . '">
                                                     🖥️ <span class="ml-2">Delete Static IP</span>
                                                 </button>
-                                                
-                                                <button class="btn btn-sm btn-change text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
-                                                style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;">
-                                                    🌏 <span class="ml-2">Change Internet Status</span>
-                                                </button>
+
+                                                <div x-data="{ modalOpen: false }">
+                                                    <button class="btn btn-sm btn-firewall text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
+                                                        style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;"
+                                                        @click.prevent="modalOpen = true" aria-controls="scrollbar-modal"
+                                                            data-iddhcp="' . $row->id_dhcp . '"
+                                                            data-idfirewall="' . $row->id_firewall . '"
+                                                            data-routerid="' . $routerId . '"
+                                                            data-ip="' . $row->address . '"
+                                                            data-mac="' . $row->mac_address . '"
+                                                            data-name="' . $row->host_name . '"
+                                                            data-status="' . $row->status . '">
+                                                    🌏 <span class="ml-2">Firewall</span>
+                                                    </button>
+                            
+                                                    <!-- Modal backdrop -->
+                                                    <div class="fixed inset-0 bg-slate-900 bg-opacity-30 z-50 transition-opacity" x-show="modalOpen"
+                                                        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+                                                        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-out duration-100"
+                                                        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"
+                                                        x-cloak>
+                                                    </div>
+                                                    <!-- Modal dialog -->
+                                                    <div id="feedback-modal"
+                                                        class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
+                                                        role="dialog" aria-modal="true" x-show="modalOpen"
+                                                        x-transition:enter="transition ease-in-out duration-200"
+                                                        x-transition:enter-start="opacity-0 translate-y-4"
+                                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                                        x-transition:leave="transition ease-in-out duration-200"
+                                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                                        x-transition:leave-end="opacity-0 translate-y-4" x-cloak>
+                                                        <div class="bg-white rounded shadow-lg overflow-auto max-w-lg w-full max-h-full"
+                                                            @keydown.escape.window="modalOpen = false">
+                                                            <!-- Modal header -->
+                                                            <div class="px-5 py-3 border-b border-slate-200">
+                                                                <div class="flex justify-between items-center">
+                                                                    <div class="font-semibold text-slate-800 text-sm">Firewall Settings</div>
+                                                                    <button class="text-slate-400 hover:text-slate-500"
+                                                                        @click="modalOpen = false">
+                                                                        <div class="sr-only">Close</div>
+                                                                        <svg class="w-4 h-4 fill-current">
+                                                                            <path
+                                                                                d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Modal content -->
+                                                            <div class="modal-content text-xs">
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             ';
                                 } else {
                                     return '
-                                            <div class="flex flex-row justify-center space-x-2">
-                                                <button class="btn btn-sm btn-make text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
-                                                style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;"
-                                                    data-id="' . $row->id_dhcp . '"
-                                                    data-routerid="' . $routerId . '">
+                                            <div class="flex flex-row justify-center space-x-2">                                                
+                                                <div x-data="{ modalOpen: false }">
+                                                    <button class="btn btn-sm btn-modal text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
+                                                        style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;"
+                                                        @click.prevent="modalOpen = true" aria-controls="scrollbar-modal"
+                                                            data-id="' . $row->id_dhcp . '"
+                                                            data-routerid="' . $routerId . '">
                                                     🖥️ <span class="ml-2">Make Static IP</span>
-                                                </button>
-                                                
+                                                    </button>
+                            
+                                                    <!-- Modal backdrop -->
+                                                    <div class="fixed inset-0 bg-slate-900 bg-opacity-30 z-50 transition-opacity" x-show="modalOpen"
+                                                        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+                                                        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-out duration-100"
+                                                        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"
+                                                        x-cloak></div>
+                                                    <!-- Modal dialog -->
+                                                    <div id="feedback-modal"
+                                                        class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
+                                                        role="dialog" aria-modal="true" x-show="modalOpen"
+                                                        x-transition:enter="transition ease-in-out duration-200"
+                                                        x-transition:enter-start="opacity-0 translate-y-4"
+                                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                                        x-transition:leave="transition ease-in-out duration-200"
+                                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                                        x-transition:leave-end="opacity-0 translate-y-4" x-cloak>
+                                                        <div class="bg-white rounded shadow-lg overflow-auto max-w-lg w-full max-h-full"
+                                                            @keydown.escape.window="modalOpen = false">
+                                                            <!-- Modal header -->
+                                                            <div class="px-5 py-3 border-b border-slate-200">
+                                                                <div class="flex justify-between items-center">
+                                                                    <div class="font-semibold text-slate-800 text-sm">Set to Static</div>
+                                                                    <button class="text-slate-400 hover:text-slate-500"
+                                                                        @click="modalOpen = false">
+                                                                        <div class="sr-only">Close</div>
+                                                                        <svg class="w-4 h-4 fill-current">
+                                                                            <path
+                                                                                d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Modal content -->
+                                                            <div class="modal-content text-xs">
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 <button class="btn btn-sm btn-change text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
                                                 style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;">
-                                                    🌏 <span class="ml-2">Change Internet Status</span>
+                                                    🌏 <span class="ml-2">Firewall</span>
                                                 </button>
                                             </div>
                                             ';
@@ -295,6 +393,7 @@ class MikrotikController extends Controller
                     'mac_address' => $device['mac-address'] ?? null,
                     'address'  => $device['address'] ?? null,
                     'host_name'   => $device['host-name'] ?? null,
+                    'comment'  => $device['comment'] ?? null,
                     'server'     => $device['server'] ?? null,
                     'status'    => $device['status'] ?? null, // Timestamp for tracking when the record was added
                     'dynamic'     => $device['dynamic'] ?? null,
@@ -339,6 +438,7 @@ class MikrotikController extends Controller
             foreach ($devices as $device) {
                 DB::table('t_firewall_addresslist')->insert([
                     'idrouter'   => $routerId,  // Track which router the data belongs to
+                    'id_firewall'   => $device['.id'],
                     'address'  => $device['address'] ?? null,
                     'list'   => $device['list'] ?? null,
                     'creation_time'     => $device['creation-time'] ?? null,
@@ -565,8 +665,11 @@ class MikrotikController extends Controller
         ], 200);
     }
     
-    public function setStatic($leaseId, $routerId)
+    public function setStatic(Request $request, $leaseId, $routerId)
     {
+
+        $comment = $request->input('username') . " - " . $request->input('department') . " - " . $request->input('deviceName');
+
         // Get router details from DB
         $router = Router::where('idrouter', $routerId)->first();
         // dd($router);
@@ -582,7 +685,7 @@ class MikrotikController extends Controller
         }
 
         // Run Command
-        $results = $this->mikrotikService->makeStatic($client, $leaseId);
+        $results = $this->mikrotikService->makeStatic($client, $leaseId, $comment);
         // dd($results);
         // \Log::info("MikroTik Response:", $results);
 
@@ -617,6 +720,52 @@ class MikrotikController extends Controller
 
         // Run Command
         $results = $this->mikrotikService->removeStatic($client, $leaseId);
+
+        if ($results === "1") {
+            return response()->json([
+                'status' => 1,
+                'message' => "IP is now dynamic!",
+            ]);            
+        } else {
+            return response()->json([
+                'status' => 2,
+                'message' => "IP is not static or not found",
+            ]);
+        }
+    }
+
+    public function getFirewallOptions($routerid)
+    {
+        $firewalls = DB::table('m_router_firewall')
+            ->where('idrouter', $routerid)
+            ->get();
+
+        // dd($firewalls);
+
+        return response()->json($firewalls);
+    }
+
+    public function setFirewallList(Request $request, $routerId)
+    {
+        $ip = $request->input('ip');
+        $targetList = $request->input('firewall');
+
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+        
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
+        }
+
+        // Run Command
+        $results = $this->mikrotikService->addOrUpdateFirewallList($client, $ip, $targetList);
 
         if ($results === "1") {
             return response()->json([

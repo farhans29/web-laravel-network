@@ -31,6 +31,7 @@
                         <th class="text-center">Address</th>
                         <th class="text-center">Mac Address</th>
                         <th class="text-center">Host Name</th>
+                        <th class="text-center">Notes</th>
                         <th class="text-center">Server</th>
                         <th class="text-center">DHCP</th>
                         <th class="text-center">Status</th>
@@ -160,7 +161,7 @@
                 processing: true,
                 serverSide: false,
                 stateServe: true,
-                "order": [[ 1, "desc" ]],
+                "order": [[ 0, "desc" ]],
                 language: {
                     search: "Search Device Table # : "
                 },
@@ -184,6 +185,10 @@
                         name: "host_name"
                     },
                     {
+                        data: "comment",
+                        name: "comment"
+                    },
+                    {
                         data: "server",
                         name: "server"
                     },
@@ -201,11 +206,151 @@
                     },
                 ],
                 columnDefs: [
-                    { className: 'text-center align-middle fixed-column text-base', targets: [0, 1, 3, 4, 5, 6] }, // Centered text
+                    { className: 'text-center align-middle fixed-column text-base', targets: [0, 1, 3, 4, 5, 6, 7] }, // Centered text
                     { className: 'text-left align-middle fixed-column text-base', targets: [2] }, // Left-aligned text
                 ],
                 lengthMenu: [[30, 50, 100, -1], [30, 50, 100, 'All']],
                 autoWidth: false // Disable automatic resizing
+            });
+
+            $('#deviceTable').on("click", ".btn-modal", function () {
+                const id = $(this).data("id");
+                const routerid = $(this).data("routerid");
+
+                $.ajax({
+                    success: function (response) {
+                        const csrf_token = $('meta[name="csrf-token"]').attr('content');
+
+                        $(".modal-content").html(`
+                            <form method="post" class="type_update" enctype="multipart/form-data" action="/mikrotik/devices/make-static/${id}/${routerid}">
+                                <input type="hidden" name="_token" value="${csrf_token}"/>
+                                <div class="px-5 py-4">
+                                    <div class="text-sm">
+                                        <div class="font-medium text-slate-800"></div>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center space-x-2">
+                                            <label class="text-sm font-medium w-32 text-right" for="username">Username</label>
+                                            <input id="username" name="username" type="text"
+                                                class="username form-input flex-1 px-2 py-1"
+                                                required />
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <label class="text-sm font-medium w-32 text-right" for="department">Department</label>
+                                            <input id="department" name="department" type="text"
+                                                class="department form-input flex-1 px-2 py-1"
+                                                required />
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <label class="text-sm font-medium w-32 text-right" for="deviceName">Device Name</label>
+                                            <input id="deviceName" name="deviceName" type="text"
+                                                class="deviceName form-input flex-1 px-2 py-1"
+                                                required />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal footer -->
+                                    <div class="px-5 py-4 border-t border-slate-200">
+                                        <div class="flex flex-wrap justify-end space-x-2">
+                                            <button type="button"
+                                                class="btn-sm border-slate-200 hover:border-slate-300 text-slate-600"
+                                                @click="modalOpen = false">Cancel</button>
+                                            <button type="submit"
+                                                class="btn-sm btn-update bg-indigo-500 hover:bg-indigo-600 text-white">Update</button>
+                                        </div>
+                                    </div>
+                            </form>
+                        `);
+                    },
+                });
+            });
+
+            $('#deviceTable').on("click", ".btn-firewall", function () {
+                const id_dhcp = $(this).data("iddhcp");
+                const id_firewall = $(this).data("idfirewall");
+                const host_name = $(this).data("name");
+                const mac_address = $(this).data("mac");
+                const address = $(this).data("ip");
+                const routerid = $(this).data("routerid");
+                const status = $(this).data("status");
+
+                $.ajax({
+                    // url: `/mikrotik/firewall/get-firewall-options/${routerid}`, // Make sure you create this route in your backend
+                    // method: "GET",
+                    success: function (response) {
+                        const csrf_token = $('meta[name="csrf-token"]').attr('content');
+
+                        // // Build the options dynamically
+                        // let firewallOptions = "";
+                        // response.forEach(option => {
+                        //     firewallOptions += `<option value="${option.id}">${option.name}</option>`;
+                        // });
+
+                        $(".modal-content").html(`
+                            <form method="post" class="type_update" enctype="multipart/form-data" action="/mikrotik/firewall/change-firewall/${routerid}">
+                                <input type="hidden" name="_token" value="${csrf_token}"/>
+
+                                <div class="px-5 py-4">
+                                    <div class="text-sm">
+                                        <div class="font-medium text-slate-800"></div>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <!-- IP Address -->
+                                        <div class="grid grid-cols-3 gap-4 items-center">
+                                            <label class="text-sm font-medium text-left col-span-1" for="ip">IP Address</label>
+                                            <input id="ip" name="ip" type="text"
+                                                class="ip form-input col-span-2 w-full px-3 py-1 bg-slate-100 rounded-md border border-slate-300"
+                                                value="${address}" required disabled readonly />
+                                        </div>
+
+                                        <!-- MAC Address -->
+                                        <div class="grid grid-cols-3 gap-4 items-center">
+                                            <label class="text-sm font-medium text-left col-span-1" for="mac_address">Mac Address</label>
+                                            <input id="mac_address" name="mac_address" type="text"
+                                                class="mac_address form-input col-span-2 w-full px-3 py-1 bg-slate-100 rounded-md border border-slate-300"
+                                                value="${mac_address}" required disabled readonly />
+                                        </div>
+
+                                        <!-- Host Name -->
+                                        <div class="grid grid-cols-3 gap-4 items-center">
+                                            <label class="text-sm font-medium text-left col-span-1" for="host_name">Host Name</label>
+                                            <input id="host_name" name="host_name" type="text"
+                                                class="host_name form-input col-span-2 w-full px-3 py-1 bg-slate-100 rounded-md border border-slate-300"
+                                                value="${host_name}" required disabled readonly />
+                                        </div>
+
+                                        <!-- Firewall Dropdown -->
+                                        <div class="grid grid-cols-3 gap-4 items-center">
+                                            <label class="text-sm font-medium text-left col-span-1" for="firewall">Firewall</label>
+                                            <select name="firewall" id="firewall"
+                                                class="firewall form-input col-span-2 w-full px-3 py-1 rounded-md border border-slate-300 bg-white"
+                                                required>
+                                                @foreach ($firewalls as $firewall)                                                    
+                                                    <option value="{{$firewall->firewall_name}}" ${status == '{{$firewall->firewall_name}}' ? 'selected':''}>
+                                                        {{$firewall->firewall_name}}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal footer -->
+                                <div class="px-5 py-4 border-t border-slate-200">
+                                    <div class="flex flex-wrap justify-end space-x-2">
+                                        <button type="button"
+                                            class="btn-sm border-slate-200 hover:border-slate-300 text-slate-600"
+                                            @click="modalOpen = false">Cancel</button>
+                                        <button type="submit"
+                                            class="btn-sm btn-update bg-indigo-500 hover:bg-indigo-600 text-white">Update</button>
+                                    </div>
+                                </div>
+                            </form>
+                        `);
+                    },
+                });
             });
 
             $('#deviceTable').on("click", ".btn-make",  function () {
