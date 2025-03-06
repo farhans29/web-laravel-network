@@ -111,6 +111,13 @@
                                 </li>
                                 <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
+                                        @if (Route::is('mikrotik.firewall-page') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
+                                        href="{{ route('mikrotik.firewall-page', ['routerId' => $router->idrouter]) }}">
+                                        <span class="text-sm font-medium duration-200">Firewall List</span>
+                                    </a>
+                                </li>
+                                <li class="mb-1 last:mb-0">
+                                    <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
                                         @if (Route::is('mikrotik.usage-stats') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
                                         href="{{ route('mikrotik.usage-stats', ['routerId' => $router->idrouter]) }}">
                                         <span class="text-sm font-medium duration-200">Usage Statistics</span>  

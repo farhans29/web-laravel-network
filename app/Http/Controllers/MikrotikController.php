@@ -8,6 +8,7 @@ use App\Services\MikrotikApiService;
 
 use App\Models\Router;
 use App\Models\DhcpClient;
+use App\Models\Firewall;
 use App\Models\FirewallList;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
@@ -52,44 +53,6 @@ class MikrotikController extends Controller
         dd($interfaces);
 
         return view('pages/mikrotik/interfaces', compact('router', 'interfaces'));
-    }
-
-    public function getClientDevicesData(Request $request)
-    {
-        $routerId = $request->routerId;
-        // dd($routerId);
-        
-        // Get router details
-        $router = Router::where('idrouter', $routerId)->first();
-
-        if (!$router) {
-            return response()->json(['error' => 'Router not found.'], 404);
-        }
-
-        // Connect to MikroTik
-        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
-        if (!$client) {
-            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
-        }
-
-        // Fetch interfaces
-        $interfaces = collect($this->mikrotikService->getInterfaces($client));
-        // dd($interfaces);
-
-        // Debug to check structure
-        if ($request->ajax()) {
-            return DataTables::of($interfaces)
-                ->addColumn('action', function ($row) {
-                    return '
-                    <div class="flex flex-row justify-center">
-                        <a href="/ga/rab-approval/list/view/' . $row['.id'] . '" class="btn btn-sm btn-modal text-sm bg-sky-500 text-white ml-1 hover:bg-sky-600">View</a>
-                        
-                        <a href="/ga/rab-approval/list/submitpage/' . $row['.id'] . '" class="btn btn-sm text-sm text-white ml-1" style="background-color: rgb(132 204 22); transition: background-color 0.3s ease-in-out;">Submit for Review</a>                      
-                    </div>';
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
     }
 
     public function getInterfacesDataJson(Request $request)
@@ -140,6 +103,8 @@ class MikrotikController extends Controller
 
         $firewalls = DB::table('m_router_firewall')
             ->where('idrouter', $routerId)
+            ->orWhere('idrouter', '0')
+            ->orderBy('firewall_name', 'asc')
             ->get();
 
         // $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
@@ -328,6 +293,39 @@ class MikrotikController extends Controller
                             ->make();
                     }
 
+    }
+
+    public function getFirewall($routerId)
+    {
+        $router = Router::where('idrouter', $routerId)->first();
+
+        // $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+
+        // if (!$client) {
+        //     return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
+        // }
+
+        // $devices = $this->mikrotikService->getDhcpLeases($client);
+        // $devices = $this->mikrotikService->getFirewallList($client);
+        // dd($devices);
+
+        return view('pages/mikrotik/firewall-list', compact('router'));
+    }
+
+    public function getFirewallData(Request $request)
+    {
+        $routerId = $request->routerId;
+
+        $results = Firewall::where('idrouter', $routerId)
+            ->orWhere('idrouter', '0')
+            ->get();
+
+        if ($request->ajax()) {
+            return DataTables::of($results)->make(true);
+        }
+
+        // Handle non-AJAX requests
+        return response()->json($results);
     }
 
     public function getConnectedDevice($routerId)
@@ -684,16 +682,12 @@ class MikrotikController extends Controller
         // dd($results);
         // \Log::info("MikroTik Response:", $results);
 
-        if ($results === "1") {
-            return response()->json([
-                'status' => 1,
-                'message' => "IP is now static!",
-            ]);            
-        } else {
-            return response()->json([
-                'status' => 2,
-                'message' => "IP is not dynamic or not found",
-            ]);
+        if ($results === "1") {                        
+            alert()->success('Success', 'IP is now static');
+            return to_route('mikrotik.devices', ['routerId' => $routerId]);                   
+        } else {            
+            alert()->error('Error', 'IP is not dynamic or not found');
+            return to_route('mikrotik.devices', ['routerId' => $routerId]);         
         }
     }
 
@@ -716,16 +710,12 @@ class MikrotikController extends Controller
         // Run Command
         $results = $this->mikrotikService->removeStatic($client, $leaseId);
 
-        if ($results === "1") {
-            return response()->json([
-                'status' => 1,
-                'message' => "IP is now dynamic!",
-            ]);            
-        } else {
-            return response()->json([
-                'status' => 2,
-                'message' => "IP is not static or not found",
-            ]);
+        if ($results === "1") {                        
+            alert()->success('Success', 'IP is now dynamic');
+            return to_route('mikrotik.devices', ['routerId' => $routerId]);                   
+        } else {            
+            alert()->error('Error', 'IP is not static or not found');
+            return to_route('mikrotik.devices', ['routerId' => $routerId]);         
         }
     }
 
@@ -740,10 +730,11 @@ class MikrotikController extends Controller
         return response()->json($firewalls);
     }
 
-    public function setFirewallList(Request $request, $routerId)
+    public function setFirewallList(Request $request, $routerId, $ip)
     {
-        $ip = $request->input('ip');
+        // $ip = $request->input('ip');
         $targetList = $request->input('firewall');
+        // dd($ip, $targetList);
 
         // Get router details from DB
         $router = Router::where('idrouter', $routerId)->first();
@@ -761,17 +752,45 @@ class MikrotikController extends Controller
 
         // Run Command
         $results = $this->mikrotikService->addOrUpdateFirewallList($client, $ip, $targetList);
+        // dd($results);
 
-        if ($results === "1") {
-            return response()->json([
-                'status' => 1,
-                'message' => "IP is now dynamic!",
-            ]);            
+        // Decode the response to check its contents
+        $responseData = json_decode($results->getContent(), true);
+
+        // Check if the response contains a success message
+        if (isset($responseData['message']) && str_contains($responseData['message'], 'moved')) {            
+            alert()->success('Success', 'IP is now updated');
+            return to_route('mikrotik.devices', ['routerId' => $routerId]);         
+        } elseif (isset($responseData['message']) && str_contains($responseData['message'], 'added')) {
+            
+            alert()->success('Success', 'IP is added to firewall list');
+            return to_route('mikrotik.devices', ['routerId' => $routerId]);          
         } else {
-            return response()->json([
-                'status' => 2,
-                'message' => "IP is not static or not found",
-            ]);
+            
+            alert()->error('Error', 'IP is not found or unavailable');
+            return to_route('mikrotik.devices', ['routerId' => $routerId]);
+        }
+    }
+
+    public function insertIntoFirewall(Request $request, $routerId)
+    {
+        // Validate request
+        $request->validate([
+            'firewall' => 'required|string|max:255'
+        ]);
+
+        try {
+            // Insert into the database
+            $firewall = new Firewall();
+            $firewall->idrouter = $routerId;
+            $firewall->firewall_name = $request->input('firewall');
+            $firewall->save();
+
+            alert()->success('Success', 'Firewall has been created');
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);
+        } catch (\Exception $e) {
+            alert()->error('Error', 'Please try again or contact admin!');
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);
         }
     }
 

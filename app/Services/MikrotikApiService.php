@@ -154,9 +154,11 @@ class MikrotikApiService
         try {
             // Step 1: Check if the IP exists in the firewall
             $queryCheck = (new Query('/ip/firewall/address-list/print'))
-                ->where('address', $ip);
-
-            $existing = $client->query($queryCheck);
+            ->add('?address=' . $ip); // Proper filtering for MikroTik API
+            // dd($queryCheck);
+                
+            $existing = $client->query($queryCheck)->read();
+            // dd($existing);
 
             if (count($existing) > 0) {
                 $id = $existing[0]['.id'];
@@ -171,7 +173,7 @@ class MikrotikApiService
                         ->equal('.id', $id)
                         ->equal('list', $targetList);
 
-                    $client->query($queryUpdate);
+                    $client->query($queryUpdate)->read();
 
                     return response()->json(['message' => "IP $ip moved from '$currentList' to '$targetList'."]);
                 }
@@ -182,7 +184,8 @@ class MikrotikApiService
                     ->equal('address', $ip)
                     ->equal('comment', "Added via Laravel API");
 
-                $client->query($queryAdd);
+                $results = $client->query($queryAdd)->read();
+                dd($results);
 
                 return response()->json(['message' => "IP $ip added to '$targetList' list."]);
             }

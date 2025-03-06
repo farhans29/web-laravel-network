@@ -84,8 +84,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/devices/delete-static/{leaseId}/{routerId}', [MikrotikController::class, 'deleteStatic'])->name('mikrotik.delete-static');
         
         // Firewall List
-        Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');   
-        Route::post('/firewall/change-firewall/{routerId}', [MikrotikController::class, 'setFirewallList'])->name('mikrotik.change-firewall');
+        Route::get('/firewall/list/{routerId}', [MikrotikController::class, 'getFirewall'])->name('mikrotik.firewall-page');
+        Route::post('/firewall/insert/{routerId}', [MikrotikController::class, 'insertIntoFirewall'])->name('mikrotik.insert-firewall');
+        Route::get('/firewall/getData', [MikrotikController::class, 'getFirewallData'])->name('mikrotik.firewall-data'); 
+        Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');
+        Route::post('/firewall/change-firewall/{routerId}/{ip}', [MikrotikController::class, 'setFirewallList'])->name('mikrotik.change-firewall');
         Route::get('/firewall/get-firewall-options/{routerid}', [MikrotikController::class, 'getFirewallOptions'])->name('mikrotik.firewall-list');
         
         // PPP List

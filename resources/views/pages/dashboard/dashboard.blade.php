@@ -120,7 +120,7 @@
                 <header class="px-3 py-4 border-b border-slate-100">
                     <h2 class="font-medium text-slate-700 text-lg">{{ $router->name }}</h2>
                     <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm p-1">
-                        Serial #: {{ $router->type }} | Model: {{ $router->idrouter }}
+                        Serial #: {{ $router->idrouter }} | Model: {{ $router->type }}
                     </header>
                 </header>
                 <div class="p-4 flex gap-4">
@@ -149,7 +149,7 @@
                             <div class="flex flex-col items-center justify-center flex-1">
                                 <div class="text-2xl font-bold">{{ $router->count }}</div>
                             </div>
-                            <div class="text-sm pb-2">Connected Clients</div>
+                            <div class="text-sm pb-2">Devices</div>
                         </div>
                     
                         <!-- Transferred Data -->
@@ -166,7 +166,6 @@
             @endforeach
         </div>
         
-
     </div>
 
     @section('js-page')
