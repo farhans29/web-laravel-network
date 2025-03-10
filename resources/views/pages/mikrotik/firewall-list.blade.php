@@ -56,18 +56,49 @@
                                         </button>
                                     </div>
                                 </div>
-                                <form action="{{ route('mikrotik.insert-firewall', ['routerId' => $router->idrouter]) }}" method="post"
+                                <form action="{{ route('mikrotik.change-firewall', ['routerId' => $router->idrouter]) }}" method="post"
                                     enctype="multipart/form-data">
                                     @csrf
                                     <!-- Modal content -->
                                     <div class="px-5 py-4">
                                         <div class="space-y-3">
-                                            <div>
-                                                <div class="flex items-center space-x-2">
-                                                    <label class="text-sm font-medium w-32 text-right" for="firewall">Firewall Name</label>
-                                                    <input id="firewall" name="firewall" type="text"
-                                                        class="firewall form-input flex-1 px-2 py-1"
+                                            <div class="space-y-3">
+                                                <!-- IP Address -->
+                                                <div class="grid grid-cols-3 gap-4 items-center">
+                                                    <label class="text-sm font-medium text-left col-span-1" for="ip">IP Address</label>
+                                                    <input id="ip" name="ip" type="text"
+                                                        class="ip form-input col-span-2 w-full px-3 py-1 bg-white rounded-md border border-slate-300"
                                                         required />
+                                                </div>
+        
+                                                {{-- <!-- MAC Address -->
+                                                <div class="grid grid-cols-3 gap-4 items-center">
+                                                    <label class="text-sm font-medium text-left col-span-1" for="mac_address">Mac Address</label>
+                                                    <input id="mac_address" name="mac_address" type="text"
+                                                        class="mac_address form-input col-span-2 w-full px-3 py-1 bg-white rounded-md border border-slate-300"
+                                                        required />
+                                                </div> --}}
+        
+                                                {{-- <!-- Host Name -->
+                                                <div class="grid grid-cols-3 gap-4 items-center">
+                                                    <label class="text-sm font-medium text-left col-span-1" for="host_name">Host Name</label>
+                                                    <input id="host_name" name="host_name" type="text"
+                                                        class="host_name form-input col-span-2 w-full px-3 py-1 bg-white rounded-md border border-slate-300"
+                                                        required />
+                                                </div> --}}
+        
+                                                <!-- Firewall Dropdown -->
+                                                <div class="grid grid-cols-3 gap-4 items-center">
+                                                    <label class="text-sm font-medium text-left col-span-1" for="firewall">Firewall</label>
+                                                    <select name="firewall" id="firewall"
+                                                        class="firewall form-input col-span-2 w-full px-3 py-1 rounded-md border border-slate-300 bg-white"
+                                                        required>
+                                                        @foreach ($firewalls as $firewall)                                                    
+                                                            <option value="{{$firewall->firewall_name}}" ${status == '{{$firewall->firewall_name}}' ? 'selected':''}>
+                                                                {{$firewall->firewall_name}}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -96,8 +127,9 @@
                 <thead>
                     <tr>
                         {{-- <th class="text-center">*</th> --}}
-                        <th class="text-center">Firewall Name</th>
-                        {{-- <th class="text-center">Action</th> --}}
+                        <th class="text-center">Address</th>
+                        <th class="text-center">List</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -129,17 +161,140 @@
                 },
                 columns: [
                     {
-                        data: "firewall_name",
-                        name: "firewall_name"
+                        data: "address",
+                        name: "address"
+                    },
+                    {
+                        data: "list",
+                        name: "list"
+                    },
+                    {
+                        data: "action",
+                        name: "action"
                     },
                 ],
                 columnDefs: [
-                    { className: 'text-center align-middle fixed-column text-base', targets: [0] }, // Centered text
+                    { className: 'text-center align-middle fixed-column text-base', targets: [0, 1, 2] }, // Centered text
                     { className: 'text-left align-middle fixed-column text-base', targets: [] }, // Left-aligned text
                 ],
                 lengthMenu: [[30, 50, 100, -1], [30, 50, 100, 'All']],
                 autoWidth: false // Disable automatic resizing
             });
+        });
+
+        $('#firewallTable').on("click", ".btn-firewall", function () {
+                const id_dhcp = $(this).data("iddhcp");
+                const id_firewall = $(this).data("idfirewall");
+                const host_name = $(this).data("name");
+                const mac_address = $(this).data("mac");
+                const address = $(this).data("ip");
+                const routerid = $(this).data("routerid");
+                const status = $(this).data("status");
+
+                $.ajax({
+                    // url: `/mikrotik/firewall/get-firewall-options/${routerid}`, // Make sure you create this route in your backend
+                    // method: "GET",
+                    success: function (response) {
+                        const csrf_token = $('meta[name="csrf-token"]').attr('content');
+
+                        // // Build the options dynamically
+                        // let firewallOptions = "";
+                        // response.forEach(option => {
+                        //     firewallOptions += `<option value="${option.id}">${option.name}</option>`;
+                        // });
+
+                        $(".modal-content").html(`
+                            <form method="post" class="type_update" enctype="multipart/form-data" action="/mikrotik/firewall/change-firewall/${routerid}/${address}">
+                                <input type="hidden" name="_token" value="${csrf_token}"/>
+
+                                <div class="px-5 py-4">
+                                    <div class="text-sm">
+                                        <div class="font-medium text-slate-800"></div>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <!-- IP Address -->
+                                        <div class="grid grid-cols-3 gap-4 items-center">
+                                            <label class="text-sm font-medium text-left col-span-1" for="ip">IP Address</label>
+                                            <input id="ip" name="ip" type="text"
+                                                class="ip form-input col-span-2 w-full px-3 py-1 bg-slate-100 rounded-md border border-slate-300"
+                                                value="${address}" required disabled readonly />
+                                        </div>
+
+                                        <!-- Firewall Dropdown -->
+                                        <div class="grid grid-cols-3 gap-4 items-center">
+                                            <label class="text-sm font-medium text-left col-span-1" for="firewall">Firewall</label>
+                                            <select name="firewall" id="firewall"
+                                                class="firewall form-input col-span-2 w-full px-3 py-1 rounded-md border border-slate-300 bg-white"
+                                                required>
+                                                @foreach ($firewalls as $firewall)                                                    
+                                                    <option value="{{$firewall->firewall_name}}" ${status == '{{$firewall->firewall_name}}' ? 'selected':''}>
+                                                        {{$firewall->firewall_name}}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal footer -->
+                                <div class="px-5 py-4 border-t border-slate-200">
+                                    <div class="flex flex-wrap justify-end space-x-2">
+                                        <button type="button"
+                                            class="btn-sm border-slate-200 hover:border-slate-300 text-slate-600"
+                                            @click="modalOpen = false">Cancel</button>
+                                        <button type="submit"
+                                            class="btn-sm btn-update bg-indigo-500 hover:bg-indigo-600 text-white">Update</button>
+                                    </div>
+                                </div>
+                            </form>
+                        `);
+                    },
+                });
+            });
+
+        $('#firewallTable').on("click", ".btn-delete",  function () {
+            const id = $(this).data("id");
+            const ip = $(this).data("ip");
+            const routerid = $(this).data("routerid");
+
+            $("input[name!='_token']").val("");
+            Swal.fire({
+                title: 'Are you sure',
+                text: `Want to delete ${ip} - ${id}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        type: "POST",
+                        url: `/mikrotik/firewall/remove/${routerid}/${id}`,
+                        success: function (response) {
+                            console.info("response: ", response)
+                            const { status, message } = response;
+                            if (status == 1) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: `${ip} has been Deleted.`,
+                                    confirmButtonColor: '#3085d6',
+                                    confirmButtonText: 'OK'
+                                });
+                                window.location.reload(true);
+                            }
+                        },
+                        error: function (data) {
+                            console.info("error: ", data)
+                        }
+                    })
+
+                }
+            })
         });
     </script>
 

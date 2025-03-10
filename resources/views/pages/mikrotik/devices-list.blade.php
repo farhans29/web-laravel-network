@@ -181,7 +181,7 @@
                         // });
 
                         $(".modal-content").html(`
-                            <form method="post" class="type_update" enctype="multipart/form-data" action="/mikrotik/firewall/change-firewall/${routerid}/${address}">
+                            <form method="post" class="type_update" enctype="multipart/form-data" action="/mikrotik/firewall/change-firewall/${routerid}">
                                 <input type="hidden" name="_token" value="${csrf_token}"/>
 
                                 <div class="px-5 py-4">

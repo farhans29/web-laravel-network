@@ -299,6 +299,30 @@ class MikrotikController extends Controller
     {
         $router = Router::where('idrouter', $routerId)->first();
 
+        $firewalls = DB::table('m_router_firewall')
+            ->where('idrouter', $routerId)
+            ->orWhere('idrouter', '0')
+            ->orderBy('firewall_name', 'asc')
+            ->get();
+
+        // $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
+
+        // if (!$client) {
+        //     return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
+        // }
+
+        // $devices = $this->mikrotikService->getDhcpLeases($client);
+        // $devices = $this->mikrotikService->getFirewallList($client);
+        // dd($devices);
+        $this->insertFirewallListDB($routerId);
+
+        return view('pages/mikrotik/firewall-list', compact('router', 'firewalls'));
+    }
+    
+    public function getFirewallMaster($routerId)
+    {
+        $router = Router::where('idrouter', $routerId)->first();
+
         // $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password);
 
         // if (!$client) {
@@ -309,10 +333,10 @@ class MikrotikController extends Controller
         // $devices = $this->mikrotikService->getFirewallList($client);
         // dd($devices);
 
-        return view('pages/mikrotik/firewall-list', compact('router'));
+        return view('pages/mikrotik/firewall-master-list', compact('router'));
     }
 
-    public function getFirewallData(Request $request)
+    public function getFirewallMasterData(Request $request)
     {
         $routerId = $request->routerId;
 
@@ -321,7 +345,161 @@ class MikrotikController extends Controller
             ->get();
 
         if ($request->ajax()) {
-            return DataTables::of($results)->make(true);
+            return DataTables::of($results)
+
+            //Add Action Column
+            ->addColumn('action', function ($row) use ($routerId) {
+                return '
+                        <div class="flex flex-row justify-center space-x-2">                               
+                            <div x-data="{ modalOpen: false }">
+                                <button class="btn btn-sm btn-firewall text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
+                                    style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;"
+                                    @click.prevent="modalOpen = true" aria-controls="scrollbar-modal"
+                                        data-id="' . $row->idrec . '"
+                                        data-firewallname="' . $row->firewall_name . '"
+                                    <span class="ml-2">Edit</span>
+                                </button>
+        
+                                <!-- Modal backdrop -->
+                                <div class="fixed inset-0 bg-slate-900 bg-opacity-30 z-50 transition-opacity" x-show="modalOpen"
+                                    x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+                                    x-transition:enter-end="opacity-100" x-transition:leave="transition ease-out duration-100"
+                                    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"
+                                    x-cloak>
+                                </div>
+                                <!-- Modal dialog -->
+                                <div id="feedback-modal"
+                                    class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
+                                    role="dialog" aria-modal="true" x-show="modalOpen"
+                                    x-transition:enter="transition ease-in-out duration-200"
+                                    x-transition:enter-start="opacity-0 translate-y-4"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in-out duration-200"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 translate-y-4" x-cloak>
+                                    <div class="bg-white rounded shadow-lg overflow-auto max-w-lg w-full max-h-full"
+                                        @keydown.escape.window="modalOpen = false">
+                                        <!-- Modal header -->
+                                        <div class="px-5 py-3 border-b border-slate-200">
+                                            <div class="flex justify-between items-center">
+                                                <div class="font-semibold text-slate-800 text-sm">Firewall Settings</div>
+                                                <button class="text-slate-400 hover:text-slate-500"
+                                                    @click="modalOpen = false">
+                                                    <div class="sr-only">Close</div>
+                                                    <svg class="w-4 h-4 fill-current">
+                                                        <path
+                                                            d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Modal content -->
+                                        <div class="modal-content text-xs">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-sm btn-delete text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
+                                style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;"
+                                    data-id="' . $row->idrec . '"
+                                    data-routerid="' . $routerId . '"
+                                    data-firewallname="' . $row->firewall_name . '"
+                                <span class="ml-2">Delete</span>
+                            </button>
+                        </div>
+                        ';
+            })
+            
+            ->rawColumns(['action'])
+            ->make(true);
+        }
+
+        // Handle non-AJAX requests
+        return response()->json($results);
+    }
+
+    public function getFirewallData(Request $request)
+    {
+        $routerId = $request->routerId;
+
+        $results = FirewallList::where('idrouter', $routerId)
+            ->get();
+
+        if ($request->ajax()) {
+            return DataTables::of($results)
+
+            //Add Action Column
+            ->addColumn('action', function ($row) use ($routerId) {
+                return '
+                        <div class="flex flex-row justify-center space-x-2">                               
+                            <div x-data="{ modalOpen: false }">
+                                <button class="btn btn-sm btn-firewall text-sm text-white flex items-center justify-center px-4 py-2 ml-1"
+                                    style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;"
+                                    @click.prevent="modalOpen = true" aria-controls="scrollbar-modal"
+                                        data-iddhcp="' . $row->id_dhcp . '"
+                                        data-idfirewall="' . $row->id_firewall . '"
+                                        data-routerid="' . $routerId . '"
+                                        data-ip="' . $row->address . '"
+                                        data-status="' . $row->status . '">
+                                    <span class="ml-2">Edit</span>
+                                </button>
+        
+                                <!-- Modal backdrop -->
+                                <div class="fixed inset-0 bg-slate-900 bg-opacity-30 z-50 transition-opacity" x-show="modalOpen"
+                                    x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+                                    x-transition:enter-end="opacity-100" x-transition:leave="transition ease-out duration-100"
+                                    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"
+                                    x-cloak>
+                                </div>
+                                <!-- Modal dialog -->
+                                <div id="feedback-modal"
+                                    class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
+                                    role="dialog" aria-modal="true" x-show="modalOpen"
+                                    x-transition:enter="transition ease-in-out duration-200"
+                                    x-transition:enter-start="opacity-0 translate-y-4"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in-out duration-200"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 translate-y-4" x-cloak>
+                                    <div class="bg-white rounded shadow-lg overflow-auto max-w-lg w-full max-h-full"
+                                        @keydown.escape.window="modalOpen = false">
+                                        <!-- Modal header -->
+                                        <div class="px-5 py-3 border-b border-slate-200">
+                                            <div class="flex justify-between items-center">
+                                                <div class="font-semibold text-slate-800 text-sm">Firewall Settings</div>
+                                                <button class="text-slate-400 hover:text-slate-500"
+                                                    @click="modalOpen = false">
+                                                    <div class="sr-only">Close</div>
+                                                    <svg class="w-4 h-4 fill-current">
+                                                        <path
+                                                            d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Modal content -->
+                                        <div class="modal-content text-xs">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-sm btn-delete text-sm text-white flex items-center justify-center px-4 py-2 ml-1" 
+                                style="background-color: rgb(2 132 199); transition: background-color 0.3s ease-in-out;"
+                                    data-id="' . $row->id_firewall . '"
+                                    data-ip="' . $row->address . '"
+                                    data-routerid="' . $routerId . '"
+                                <span class="ml-2">Delete</span>
+                            </button>
+                        </div>
+                        ';
+            })
+            
+            ->rawColumns(['action'])
+            ->make(true);
         }
 
         // Handle non-AJAX requests
@@ -730,9 +908,9 @@ class MikrotikController extends Controller
         return response()->json($firewalls);
     }
 
-    public function setFirewallList(Request $request, $routerId, $ip)
+    public function setFirewallList(Request $request, $routerId)
     {
-        // $ip = $request->input('ip');
+        $ip = $request->input('ip');
         $targetList = $request->input('firewall');
         // dd($ip, $targetList);
 
@@ -761,14 +939,45 @@ class MikrotikController extends Controller
         if (isset($responseData['message']) && str_contains($responseData['message'], 'moved')) {            
             alert()->success('Success', 'IP is now updated');
             return to_route('mikrotik.devices', ['routerId' => $routerId]);         
-        } elseif (isset($responseData['message']) && str_contains($responseData['message'], 'added')) {
-            
+        } elseif (isset($responseData['message']) && str_contains($responseData['message'], 'added')) {            
             alert()->success('Success', 'IP is added to firewall list');
             return to_route('mikrotik.devices', ['routerId' => $routerId]);          
-        } else {
-            
-            alert()->error('Error', 'IP is not found or unavailable');
+        } else {            
+            alert()->error('Error', 'IP is not found or already on the chosen firewall list');
             return to_route('mikrotik.devices', ['routerId' => $routerId]);
+        }
+    }
+
+    public function removeFirewallList(Request $request, $routerId, $id)
+    {
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+        
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
+        }
+
+        // Run Command
+        $results = $this->mikrotikService->removeFromFirewallList($client, $id);
+        // dd($results);
+
+        // Decode the response to check its contents
+        $responseData = json_decode($results->getContent(), true);
+
+        // Check if the response contains a success message
+        if (isset($responseData['message']) && str_contains($responseData['message'], 'removed')) {            
+            alert()->success('Success', 'Firewall List has been deleted');
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);         
+        } else {            
+            alert()->error('Error', 'Something went wrong');
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);
         }
     }
 
@@ -792,6 +1001,42 @@ class MikrotikController extends Controller
             alert()->error('Error', 'Please try again or contact admin!');
             return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);
         }
+    }
+
+    public function updateFirewall(Request $request, $idrec)
+    {
+        // Validate the request
+        $request->validate([
+            'firewall_name' => 'required|string|max:255',
+        ]);
+
+        // Find the firewall record by ID
+        $firewall = Firewall::find($idrec);
+
+        if (!$firewall) {
+            return response()->json(['error' => 'Firewall entry not found.'], 404);
+        }
+
+        // Update firewall entry
+        $firewall->firewall_name = $request->input('firewall_name');
+        $firewall->save();
+
+        return response()->json(['message' => 'Firewall entry updated successfully.']);
+    }
+
+    public function deleteFirewall($idrec)
+    {
+        // Find the firewall record by ID
+        $firewall = Firewall::find($idrec);
+    
+        if (!$firewall) {
+            return response()->json(['error' => 'Firewall entry not found.'], 404);
+        }
+    
+        // Delete the record
+        $firewall->delete();
+    
+        return response()->json(['message' => 'Firewall entry deleted successfully.']);
     }
 
 }

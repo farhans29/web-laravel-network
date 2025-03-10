@@ -185,10 +185,32 @@ class MikrotikApiService
                     ->equal('comment', "Added via Laravel API");
 
                 $results = $client->query($queryAdd)->read();
-                dd($results);
+                // dd($results);
 
                 return response()->json(['message' => "IP $ip added to '$targetList' list."]);
             }
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function removeFromFirewallList($client, $firewallId)
+    {
+        try {
+            // Step 1: Remove from MikroTik Firewall List using `.id`
+            $queryDelete = (new Query('/ip/firewall/address-list/remove'))
+                ->equal('.id', $firewallId);
+
+            $client->query($queryDelete)->read();
+
+            // // Step 2: Remove from database
+            // $firewall = Firewall::find($idrec);
+            // if ($firewall) {
+            //     $firewall->delete();
+            // }
+
+            return response()->json(['message' => "Firewall rule with ID '$firewallId' removed from MikroTik and deleted from the database."]);
 
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
