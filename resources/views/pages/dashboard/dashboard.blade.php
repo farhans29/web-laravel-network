@@ -114,7 +114,7 @@
             @endforeach
         </div> --}}
         {{-- New Cards --}}
-        <div class="grid grid-cols-2 gap-6 w-full">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
             @foreach ($dataRouter as $router)
             <div class="w-full flex flex-col bg-white shadow-lg rounded-sm border border-slate-200">
                 <header class="px-3 py-4 border-b border-slate-100">
@@ -123,9 +123,9 @@
                         Serial #: {{ $router->idrouter }} | Model: {{ $router->type }}
                     </header>
                 </header>
-                <div class="p-4 flex gap-4">
+                <div class="p-4 flex flex-col sm:flex-row gap-4">
                     <!-- Graph Container -->
-                    <div class="flex flex-col w-3/4">
+                    <div class="flex flex-col sm:w-3/4 w-full">
                         <header class="text-sm border-b font-semibold text-gray-600">Daily</header>
                         <div class="relative">
                             <img id="graphImage1-{{ $router->idrouter }}" 
@@ -141,30 +141,26 @@
                                 alt="Weekly Graph">
                         </div>
                     </div>
-                    <!-- Info Boxes (Now perfectly aligned with graphs) -->
-                    <div class="flex flex-col w-1/4">
+                    <!-- Info Boxes (Responsive) -->
+                    <div class="flex flex-col sm:w-1/4 w-full">
                         <!-- Connected Clients -->
                         <div class="flex flex-col justify-center items-center border border-slate-600 text-white p-3 rounded-lg bg-gray-800"
                             style="height: calc(100% / 2 - 4px);">
-                            <div class="flex flex-col items-center justify-center flex-1">
-                                <div class="text-2xl font-bold">{{ $router->count }}</div>
-                            </div>
+                            <div class="text-2xl font-bold">{{ $router->count }}</div>
                             <div class="text-sm pb-2">Devices</div>
                         </div>
-                    
+        
                         <!-- Transferred Data -->
                         <div class="flex flex-col justify-center items-center border border-slate-600 text-white p-3 rounded-lg mt-2 bg-gray-800"
                             style="height: calc(100% / 2 - 4px);">
-                            <div class="flex flex-col items-center justify-center flex-1">
-                                <div class="text-2xl font-bold">{{ $router->total }}<span class="text-lg font-semibold"></span></div>
-                            </div>
+                            <div class="text-2xl font-bold">{{ $router->total }}</div>
                             <div class="text-sm pb-2">Transferred</div>
                         </div>
                     </div>                    
                 </div>
             </div>
             @endforeach
-        </div>
+        </div>        
         
     </div>
 
