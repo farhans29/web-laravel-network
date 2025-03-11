@@ -6,6 +6,7 @@ use RouterOS\Client;
 use RouterOS\Query;
 use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Expr\Cast;
+use PhpParser\Node\Stmt\TryCatch;
 
 class MikrotikApiService
 {
@@ -56,14 +57,20 @@ class MikrotikApiService
 
     public function getBoundLease($client)
     {
-        $leases = $client->query('/ip/dhcp-server/lease/print')->read();
-    
-        // Filter leases where the 'status' is 'bound'
-        $boundLeases = array_filter($leases, function ($lease) {
-            return isset($lease['status']) && $lease['status'] === 'bound';
-        });
-        // dd($boundLeases);
+        try {
+            
+            $leases = $client->query('/ip/dhcp-server/lease/print')->read();
+        
+            // Filter leases where the 'status' is 'bound'
+            $boundLeases = array_filter($leases, function ($lease) {
+                return isset($lease['status']) && $lease['status'] === 'bound';
+            });
+            // dd($boundLeases);
 
+        } catch (\Throwable $th) {
+            // dump($th);
+            return 0;
+        }
         return count($boundLeases);
     }
 
