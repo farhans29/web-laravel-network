@@ -35,7 +35,9 @@
             
             $mikrotikService = new MikrotikApiService();
 
-            $dataRouter = Router::where('idusergrouping', $groupId)->get();
+            $dataRouter = Router::where('idusergrouping', $groupId)
+                                ->orderBy('name', 'asc')
+                                ->get();
             $yesterday = Carbon::yesterday()->toDateString();
             foreach ($dataRouter as $router) {
                     $client = $mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);

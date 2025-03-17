@@ -118,11 +118,14 @@
             @foreach ($dataRouter as $router)
             <div class="w-full flex flex-col bg-white shadow-lg rounded-sm border border-slate-200">
                 <header class="px-3 py-4 border-b border-slate-100">
-                    <h2 class="font-medium text-slate-700 text-lg">{{ $router->name }}</h2>
+                    <h2 class="font-medium text-slate-700 text-lg bg-[#CCCCFF] px-2 py-1 rounded-md">
+                        {{ $router->name }}
+                    </h2>
                     <header class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm p-1">
                         Serial #: {{ $router->idrouter }} | Model: {{ $router->type }}
                     </header>
                 </header>
+                
                 <div class="p-4 flex flex-col sm:flex-row gap-4">
                     <!-- Graph Container -->
                     <div class="flex flex-col sm:w-3/4 w-full">
