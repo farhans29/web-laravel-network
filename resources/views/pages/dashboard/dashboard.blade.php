@@ -51,7 +51,7 @@
             <!-- Content -->
             <div class="relative">
                 <h1 class="text-2xl md:text-3xl text-slate-800 font-bold mb-1">Welcome to {{ $CRM_ISS->nilai }}, {{ Auth::user()->username }} </h1>
-                <p>Responsibility to build Manpower</p>
+                <p>Integrated Networking Solution</p>
             </div>
         
         </div>

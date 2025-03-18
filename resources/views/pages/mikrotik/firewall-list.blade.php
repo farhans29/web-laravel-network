@@ -129,7 +129,9 @@
                         {{-- <th class="text-center">*</th> --}}
                         <th class="text-center">Address</th>
                         <th class="text-center">List</th>
-                        <th class="text-center">Action</th>
+                        @if (Auth::user()->id == 1)
+                            <th class="text-center">Action</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -144,42 +146,41 @@
     <script>
         $(document).ready(function () {
             
+            let columns = [
+                { data: "address", name: "address" },
+                { data: "list", name: "list" }
+            ];
+
+            @if(Auth::user()->id == 1)
+                columns.push({ data: "action", name: "action" });
+            @endif
+
             $('#firewallTable').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: false,
                 stateServe: true,
-                "order": [[ 0, "asc" ]],
+                "order": [[0, "asc"]],
                 language: {
                     search: "Search Firewall Table # : "
                 },
                 ajax: {
                     url: "{{ route('mikrotik.firewall-data') }}",
-                    data:function(d){
-                        d.routerId = "{{$router->idrouter}}"
+                    data: function (d) {
+                        d.routerId = "{{$router->idrouter}}";
                     }
                 },
-                columns: [
-                    {
-                        data: "address",
-                        name: "address"
-                    },
-                    {
-                        data: "list",
-                        name: "list"
-                    },
-                    {
-                        data: "action",
-                        name: "action"
-                    },
-                ],
+                columns: columns,
                 columnDefs: [
-                    { className: 'text-center align-middle fixed-column text-base', targets: [0, 1, 2] }, // Centered text
-                    { className: 'text-left align-middle fixed-column text-base', targets: [] }, // Left-aligned text
+                    { className: 'text-center align-middle fixed-column text-base', targets: [0, 1] }, // Centered text
+                    @if(Auth::user()->id == 1)
+                        { className: 'text-center align-middle fixed-column text-base', targets: [2] }, // Apply to Action column
+                    @endif
                 ],
                 lengthMenu: [[30, 50, 100, -1], [30, 50, 100, 'All']],
                 autoWidth: false // Disable automatic resizing
             });
+            
         });
 
         $('#firewallTable').on("click", ".btn-firewall", function () {
