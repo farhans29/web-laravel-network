@@ -15,7 +15,7 @@
         </div>
 
         <!-- label -->
-        @if (Auth::user()->id == '1')
+        @if (Auth::user()->role == '101')
             <div class="flex flex-row text-xs">
                 <label class="flex flex-row text-xs">
                     <div x-data="{ modalOpen: false }">
