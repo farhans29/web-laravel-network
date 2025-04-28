@@ -155,7 +155,7 @@ class MikrotikApiService
         }
     }
     
-    public function addOrUpdateFirewallList($client, $ip, $targetList)
+    public function addOrUpdateFirewallList($client, $ip, $targetList, $user)
     {
 
         try {
@@ -178,7 +178,8 @@ class MikrotikApiService
                     // Step 2: Move IP to a different list (update)
                     $queryUpdate = (new Query('/ip/firewall/address-list/set'))
                         ->equal('.id', $id)
-                        ->equal('list', $targetList);
+                        ->equal('list', $targetList)
+                        ->equal('comment', $targetList & " - " & $user); // Divisi - User
 
                     $client->query($queryUpdate)->read();
 
@@ -189,7 +190,7 @@ class MikrotikApiService
                 $queryAdd = (new Query('/ip/firewall/address-list/add'))
                     ->equal('list', $targetList)
                     ->equal('address', $ip)
-                    ->equal('comment', "Added via Laravel API");
+                    ->equal('comment', $targetList & " - " & $user); // Divisi - User
 
                 $results = $client->query($queryAdd)->read();
                 // dd($results);

@@ -100,6 +100,13 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
+
+                                                <div class="grid grid-cols-3 gap-4 items-center">
+                                                    <label class="text-sm font-medium text-left col-span-1" for="user">User</label>
+                                                    <input id="user" name="user" type="text"
+                                                        class="user form-input col-span-2 w-full px-3 py-1 bg-white rounded-md border border-slate-300"
+                                                        required />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

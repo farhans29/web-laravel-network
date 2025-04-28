@@ -912,6 +912,7 @@ class MikrotikController extends Controller
     {
         $ip = $request->input('ip');
         $targetList = $request->input('firewall');
+        $user = $request->input('user');
         // dd($ip, $targetList);
 
         // Get router details from DB
@@ -929,7 +930,7 @@ class MikrotikController extends Controller
         }
 
         // Run Command
-        $results = $this->mikrotikService->addOrUpdateFirewallList($client, $ip, $targetList);
+        $results = $this->mikrotikService->addOrUpdateFirewallList($client, $ip, $targetList, $user);
         // dd($results);
 
         // Decode the response to check its contents
