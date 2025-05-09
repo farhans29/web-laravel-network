@@ -166,12 +166,16 @@ class MikrotikApiService
                 
             $existing = $client->query($queryCheck)->read();
             // dd($existing);
+            $comment = $targetList . " - " . $user;
+            // dd($ip, $targetList, $user, $comment);
 
             if (count($existing) > 0) {
+                // dd("Exist");
                 $id = $existing[0]['.id'];
                 $currentList = $existing[0]['list'];
+                // dd($currentList, $targetList);
 
-                if ($currentList === $targetList) {
+                if (trim($currentList) === trim($targetList)) {
                     // IP is already in the correct list, do nothing
                     return response()->json(['message' => "IP $ip is already in the '$targetList' list."], 200);
                 } else {
@@ -179,7 +183,7 @@ class MikrotikApiService
                     $queryUpdate = (new Query('/ip/firewall/address-list/set'))
                         ->equal('.id', $id)
                         ->equal('list', $targetList)
-                        ->equal('comment', $targetList & " - " & $user); // Divisi - User
+                        ->equal('comment', $comment); // Divisi - User
 
                     $client->query($queryUpdate)->read();
 
@@ -190,7 +194,7 @@ class MikrotikApiService
                 $queryAdd = (new Query('/ip/firewall/address-list/add'))
                     ->equal('list', $targetList)
                     ->equal('address', $ip)
-                    ->equal('comment', $targetList & " - " & $user); // Divisi - User
+                    ->equal('comment', $comment); // Divisi - User
 
                 $results = $client->query($queryAdd)->read();
                 // dd($results);

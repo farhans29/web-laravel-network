@@ -89,11 +89,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/firewall/insert/{routerId}', [MikrotikController::class, 'insertIntoFirewall'])->name('mikrotik.insert-firewall');
         Route::post('/firewall/update/{id}', [MikrotikController::class, 'updateFirewall'])->name('mikrotik.update-firewall');
         Route::post('/firewall/delete/{id}', [MikrotikController::class, 'deleteFirewall'])->name('mikrotik.delete-firewall');
-        Route::get('/firewall/getData', [MikrotikController::class, 'getFirewallMasterData'])->name('mikrotik.firewall-master-data'); 
+        Route::get('/firewall/master/getData', [MikrotikController::class, 'getFirewallMasterData'])->name('mikrotik.firewall-master-data'); 
         
         // Firewall List
         Route::get('/firewall/{routerId}', [MikrotikController::class, 'getFirewallList'])->name('mikrotik.firewalllist');
         Route::post('/firewall/change-firewall/{routerId}', [MikrotikController::class, 'setFirewallList'])->name('mikrotik.change-firewall');
+        Route::post('/firewall/edit-firewall/{routerId}/{ip}', [MikrotikController::class, 'editFirewallList'])->name('mikrotik.edit-firewall');
         Route::post('/firewall/remove/{routerId}/{id}', [MikrotikController::class, 'removeFirewallList'])->name('mikrotik.remove-firewall');
         Route::get('/firewall/get-firewall-options/{routerid}', [MikrotikController::class, 'getFirewallOptions'])->name('mikrotik.firewall-list');
         Route::get('/firewall/getData', [MikrotikController::class, 'getFirewallData'])->name('mikrotik.firewall-data'); 

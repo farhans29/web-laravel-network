@@ -913,7 +913,7 @@ class MikrotikController extends Controller
         $ip = $request->input('ip');
         $targetList = $request->input('firewall');
         $user = $request->input('user');
-        // dd($ip, $targetList);
+        // dd($ip, $targetList, $user);
 
         // Get router details from DB
         $router = Router::where('idrouter', $routerId)->first();
@@ -939,13 +939,54 @@ class MikrotikController extends Controller
         // Check if the response contains a success message
         if (isset($responseData['message']) && str_contains($responseData['message'], 'moved')) {            
             alert()->success('Success', 'IP is now updated');
-            return to_route('mikrotik.devices', ['routerId' => $routerId]);         
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);         
         } elseif (isset($responseData['message']) && str_contains($responseData['message'], 'added')) {            
             alert()->success('Success', 'IP is added to firewall list');
-            return to_route('mikrotik.devices', ['routerId' => $routerId]);          
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);          
         } else {            
             alert()->error('Error', 'IP is not found or already on the chosen firewall list');
-            return to_route('mikrotik.devices', ['routerId' => $routerId]);
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);
+        }
+    }
+
+    public function editFirewallList(Request $request, $routerId, $ip)
+    {
+        // $ip = $request->input('ip');
+        $targetList = $request->input('firewall');
+        $user = $request->input('user');
+        // dd($ip, $targetList, $user);
+
+        // Get router details from DB
+        $router = Router::where('idrouter', $routerId)->first();
+        // dd($router);
+        
+        if (!$router) {
+            return response()->json(['error' => 'Router not found.'], 404);
+        }
+
+        // Connect to MikroTik
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik.'], 500);
+        }
+
+        // Run Command
+        $results = $this->mikrotikService->addOrUpdateFirewallList($client, $ip, $targetList, $user);
+        // dd($results);
+
+        // Decode the response to check its contents
+        $responseData = json_decode($results->getContent(), true);
+
+        // Check if the response contains a success message
+        if (isset($responseData['message']) && str_contains($responseData['message'], 'moved')) {            
+            alert()->success('Success', 'IP is now updated');
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);         
+        } elseif (isset($responseData['message']) && str_contains($responseData['message'], 'added')) {            
+            alert()->success('Success', 'IP is added to firewall list');
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);          
+        } else {            
+            alert()->error('Error', 'IP is not found or already on the chosen firewall list');
+            return to_route('mikrotik.firewall-page', ['routerId' => $routerId]);
         }
     }
 

@@ -212,7 +212,7 @@
                         // });
 
                         $(".modal-content").html(`
-                            <form method="post" class="type_update" enctype="multipart/form-data" action="/mikrotik/firewall/change-firewall/${routerid}/${address}">
+                            <form method="post" class="type_update" enctype="multipart/form-data" action="/mikrotik/firewall/edit-firewall/${routerid}/${address}">
                                 <input type="hidden" name="_token" value="${csrf_token}"/>
 
                                 <div class="px-5 py-4">
@@ -242,6 +242,13 @@
                                                 @endforeach
                                             </select>
                                         </div>
+                                        
+                                        <div class="grid grid-cols-3 gap-4 items-center">
+                                            <label class="text-sm font-medium text-left col-span-1" for="user">User</label>
+                                            <input id="user" name="user" type="text"
+                                                class="user form-input col-span-2 w-full px-3 py-1 bg-white rounded-md border border-slate-300"
+                                                required />
+                                        </div>                                        
                                     </div>
                                 </div>
 
@@ -269,7 +276,7 @@
             $("input[name!='_token']").val("");
             Swal.fire({
                 title: 'Are you sure',
-                text: `Want to delete ${ip} - ${id}?`,
+                text: `Want to delete ${ip}?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
