@@ -33,12 +33,13 @@ use Faker\Guesser\Name;
 |
 */
 
+
+// Route::redirect('/', 'login');
+Route::redirect('/','dashboard');
+
 Route::get('/inventory', [SearchProductController::class, 'index'])->name('search-product');
 Route::get('/inventory/getdata', [SearchProductController::class, 'getData'])->name('search-product.getdata');
 Route::get('/inventory/getdetail/{code}', [SearchProductController::class, 'getDetail'])->name('search-product.getdetail');
-
-Route::redirect('/', 'login');
-
 // TRAFFIC COLLECTOR
 Route::get('/traffic-collector', [TrafficCollectorController::class, 'collectTrafficData']);
 Route::get('/traffic-collector-daily', [TrafficCollectorController::class, 'collectTrafficDataDaily']);
