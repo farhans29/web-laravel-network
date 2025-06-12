@@ -38,7 +38,11 @@ class ContentServiceProvider extends ServiceProvider
                 
                 // Retrieve routers for the authenticated user's group
                 // $mikrotikService = new MikrotikApiService();
-                $dataRouters = Router::where('idusergrouping', $groupId)->get();
+                if ($groupId == 1) {
+                    $dataRouters = Router::all();
+                } else {                    
+                    $dataRouters = Router::where('idusergrouping', $groupId)->get();
+                }
                 // foreach ($dataRouters as $router) {
                 //     $client = $mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
                 //     $router->is_online = $client ? true : false;
