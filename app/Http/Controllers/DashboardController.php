@@ -36,7 +36,7 @@
             $mikrotikService = new MikrotikApiService();
 
             if ($groupId == 1) {
-                $dataRouters = Router::all();
+                $dataRouter = Router::all();
             } else {                    
                 $dataRouter = Router::where('idusergrouping', $groupId)
                                 ->orderBy('name', 'asc')
