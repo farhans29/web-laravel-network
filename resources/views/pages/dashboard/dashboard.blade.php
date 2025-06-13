@@ -133,14 +133,14 @@
                         <div class="relative">
                             <img id="graphImage1-{{ $router->idrouter }}" 
                                 class="object-cover object-center w-full"
-                                src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/daily.gif?{{ time() }}" 
+                                src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/daily.gif" 
                                 alt="Daily Graph">
                         </div>
                         <header class="text-sm border-b font-semibold text-gray-600 mt-2">Weekly</header>
                         <div class="relative">
                             <img id="graphImage2-{{ $router->idrouter }}" 
                                 class="object-cover object-center w-full"
-                                src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/weekly.gif?{{ time() }}" 
+                                src="http://{{ $router->ip }}:{{ $router->web_port }}/graphs/iface/bridge/weekly.gif" 
                                 alt="Weekly Graph">
                         </div>
                     </div>
