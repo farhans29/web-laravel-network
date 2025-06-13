@@ -71,6 +71,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::prefix('mikrotik')->group(function () {
         //Router List
         Route::get('/routers', [MikrotikController::class, 'getAllRouters'])->name('mikrotik.routers');
+        Route::get('/proxy-image/{router}/{period}', function ($router, $period) {
+            $router = App\Models\Router::findOrFail($router);
+            $url = "http://{$router->ip}:{$router->web_port}/graphs/iface/bridge/{$period}.gif";
+
+            $image = file_get_contents($url);
+            return response($image)->header('Content-Type', 'image/gif');
+        });
 
         //Interface List
         Route::get('/interface/{routerId}', [MikrotikController::class, 'getInterface'])->name('mikrotik.interface');
