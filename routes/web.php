@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\DataFeedController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CustomerController;
@@ -72,11 +73,21 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         //Router List
         Route::get('/routers', [MikrotikController::class, 'getAllRouters'])->name('mikrotik.routers');
         Route::get('/proxy-image/{router}/{period}', function ($router, $period) {
-            $router = App\Models\Router::findOrFail($router);
+            $router = \App\Models\Router::where('idrouter', $router)->firstOrFail();
             $url = "http://{$router->ip}:{$router->web_port}/graphs/iface/bridge/{$period}.gif";
 
-            $image = file_get_contents($url);
-            return response($image)->header('Content-Type', 'image/gif');
+            try {
+                $response = Http::timeout(5)->get($url);
+
+                if (!$response->ok()) {
+                    abort(404, 'Image not found');
+                }
+
+                return response($response->body())
+                    ->header('Content-Type', 'image/gif');
+            } catch (\Exception $e) {
+                abort(500, 'Failed to fetch image');
+            }
         });
 
         //Interface List
