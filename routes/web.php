@@ -73,14 +73,15 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         //Router List
         Route::get('/routers', [MikrotikController::class, 'getAllRouters'])->name('mikrotik.routers');
         Route::get('/proxy-image/{router}/{period}', function ($router, $period) {
-            $router = \App\Models\Router::where('idrouter', $router)->firstOrFail();
-            $url = "http://{$router->ip}:{$router->web_port}/graphs/iface/bridge/{$period}.gif";
+            $routerModel = \App\Models\Router::where('idrouter', $router)->firstOrFail();
+
+            $url = "http://{$routerModel->ip}:{$routerModel->web_port}/graphs/iface/bridge/{$period}.gif";
 
             try {
                 $response = Http::timeout(5)->get($url);
 
                 if (!$response->ok()) {
-                    abort(404, 'Image not found');
+                    abort(404, 'Image not found on router');
                 }
 
                 return response($response->body())

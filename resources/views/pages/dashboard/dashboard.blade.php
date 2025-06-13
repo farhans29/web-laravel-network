@@ -133,14 +133,14 @@
                         <div class="relative">
                             <img id="graphImage1-{{ $router->idrouter }}" 
                                 class="object-cover object-center w-full"
-                                src="{{ url('proxy-image/' . $router->idrouter . '/daily') }}"
+                                src="{{ url('mikrotik/proxy-image/' . $router->idrouter . '/daily') }}"
                                 alt="Daily Graph">
                         </div>
                         <header class="text-sm border-b font-semibold text-gray-600 mt-2">Weekly</header>
                         <div class="relative">
                             <img id="graphImage2-{{ $router->idrouter }}" 
                                 class="object-cover object-center w-full"
-                                src="{{ url('proxy-image/' . $router->idrouter . '/weekly') }}"
+                                src="{{ url('mikrotik/proxy-image/' . $router->idrouter . '/weekly') }}"
                                 alt="Weekly Graph">
                         </div>
                     </div>
