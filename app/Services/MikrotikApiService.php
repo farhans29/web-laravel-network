@@ -22,9 +22,13 @@ class MikrotikApiService
             // dd($client);
             return $client;
         } catch (\Exception $e) {
-            dd($host, $username, $password, $port, $e->getMessage());
-            // dd($host,$e->getMessage());
+            // dd($host, $username, $password, $port, $e->getMessage());
+            // dd($e->getMessage());
             // return false;
+            Log::error('Failed to connect to MikroTik router: ' . $e->getMessage(), [
+                'host' => $host,
+                'port' => $port
+            ]);
         }
     }
 
