@@ -19,6 +19,7 @@ class MikrotikApiService
                 'pass' => $password,
                 'port' => (int) $port, // Change to 8729 for SSL, 8728 for Default
             ]);
+            dd($client);
             return $client;
         } catch (\Exception $e) {
             // dd($host, $username, $password, $port, $e->getMessage());
