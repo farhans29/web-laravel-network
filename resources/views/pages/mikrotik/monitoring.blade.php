@@ -90,7 +90,7 @@
                     labels: [],
                     datasets: [
                         {
-                            label: 'RX (kbps)',
+                            label: 'RX (Bps)',
                             data: [],
                             borderColor: 'blue',
                             fill: false,
@@ -98,7 +98,7 @@
                             pointHoverRadius: 0, // also hide them on hover
                         },
                         {
-                            label: 'TX (kbps)',
+                            label: 'TX (Bps)',
                             data: [],
                             borderColor: 'red',
                             fill: false,
