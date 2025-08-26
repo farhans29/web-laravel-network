@@ -89,8 +89,22 @@
                 data: {
                     labels: [],
                     datasets: [
-                        { label: 'RX (bps)', data: [], borderColor: 'blue', fill: false },
-                        { label: 'TX (bps)', data: [], borderColor: 'red', fill: false }
+                        {
+                            label: 'RX (kbps)',
+                            data: [],
+                            borderColor: 'blue',
+                            fill: false,
+                            pointRadius: 0,      // 🚀 hide the circles
+                            pointHoverRadius: 0, // also hide them on hover
+                        },
+                        {
+                            label: 'TX (kbps)',
+                            data: [],
+                            borderColor: 'red',
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0,
+                        }
                     ]
                 },
                 options: {

@@ -114,8 +114,8 @@ class MikrotikApiService
 
         if (!empty($response[0])) {
             return response()->json([
-                'rx' => (int)$response[0]['rx-bits-per-second'],
-                'tx' => (int)$response[0]['tx-bits-per-second'],
+                'rx' => (int)$response[0]['rx-bits-per-second'] / 1028,
+                'tx' => (int)$response[0]['tx-bits-per-second'] / 1028,
                 'time' => now()->format('H:i:s'),
             ]);
         }
