@@ -130,8 +130,8 @@
 
         // Update both charts every second
         setInterval(() => {
-            fetchTraffic(chart1, routerId1, interface);
-            fetchTraffic(chart2, routerId2, interface);
+            fetchTraffic(chart1, routerId1, "ether4");
+            fetchTraffic(chart2, routerId2, "sfp-sfpplus4");
         }, 1000);
 
         document.addEventListener("DOMContentLoaded", function () {
