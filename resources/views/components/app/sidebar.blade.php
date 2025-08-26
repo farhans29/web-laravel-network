@@ -109,7 +109,7 @@
                                 </div>
                             </a>
 
-                            <!-- Submenu (List & New) -->
+                            <!-- Submenu -->
                             <ul class="pl-9 mt-1 hidden" :class="open ? '!block' : 'hidden'">
                                 <li class="mb-1 last:mb-0">
                                     <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
@@ -125,6 +125,15 @@
                                         <span class="text-sm font-medium duration-200">Firewall List</span>
                                     </a>
                                 </li>
+                                @if (Auth::user()->idusergrouping == '1' or Auth::user()->idusergrouping == '2')  
+                                    <li class="mb-1 last:mb-0">
+                                        <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 
+                                            @if (Route::is('mikrotik.monitor') && request()->route('routerId') == $router->idrouter) !text-indigo-500 @endif"
+                                            href="{{ route('mikrotik.monitor', ['routerId' => $router->idrouter]) }}">
+                                            <span class="text-sm font-medium duration-200">Interface Monitoring</span>
+                                        </a>
+                                    </li>
+                                @endif
                                 @if (Auth::user()->id == '1')   
                                     <li class="mb-1 last:mb-0">
                                         <a class="block text-slate-400 hover:text-slate-200 transition duration-150 truncate 

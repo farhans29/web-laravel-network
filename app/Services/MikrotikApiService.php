@@ -100,6 +100,28 @@ class MikrotikApiService
         $response = $client->query('/ppp/secret/print')->read();
         return $response;
     }
+    
+    public function getTraffic($client, $interface)
+    {
+        // Build the query in shorthand format
+        $query = (new Query('/interface/monitor-traffic'))
+            ->equal('interface', $interface)
+            ->equal('once');
+
+        // Send query and read the response
+        $response = $client->query($query)->read();
+        // dd($response);
+
+        if (!empty($response[0])) {
+            return response()->json([
+                'rx' => (int)$response[0]['rx-bits-per-second'],
+                'tx' => (int)$response[0]['tx-bits-per-second'],
+                'time' => now()->format('H:i:s'),
+            ]);
+        }
+
+        return response()->json(['error' => 'No data'], 500);
+    }
 
     public function makeStatic($client, $leaseId, $comment)
     {

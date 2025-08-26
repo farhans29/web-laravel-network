@@ -533,9 +533,64 @@ class MikrotikController extends Controller
         }
 
         $devices = $this->mikrotikService->getFirewallList($client);
-        dd($devices);
+        // dd($devices);
 
         return view('pages/mikrotik/interfaces', compact('devices', 'router'));
+    }
+
+    public function getMonitor($routerId)
+    {
+        $router = Router::where('idrouter', $routerId)->first();
+        $interface = 'ether4';
+
+        $router1 = ['routerId' => 'EC190F8BE928', 'name' => 'Genco - CF'];
+        $router2 = ['routerId' => 'HEP08GP7NN0', 'name' => 'Fasdex - CD'];
+
+        // $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+
+        // if (!$client) {
+        //     return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
+        // }
+
+        // $traffic = $this->mikrotikService->getTrafficMonitor($client);
+        // dd($devices);
+
+        return view('pages/mikrotik/monitoring', compact('router', 'interface', 'router1', 'router2'));
+    }
+
+    public function getTraffic($routerId, $interface)
+    {
+        $router = Router::where('idrouter', $routerId)->first();
+
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+
+        if (!$client) {
+            return response()->json(['error' => 'Failed to connect to MikroTik router.'], 500);
+        }
+
+        return $this->mikrotikService->getTraffic($client, $interface);
+        // $traffic = $this->mikrotikService->getTraffic($client, $interface);
+        // dd($traffic);
+
+        // return $traffic;        
+        // return view('pages/mikrotik/interfaces', compact('router'));
+    }
+
+    public function getTrafficData($routerId)
+    {
+        $router = Router::where('idrouter', $routerId)->first();
+
+        $client = $this->mikrotikService->connect($router->ip, $router->login, $router->password, $router->api_port);
+
+        if (!$client) {
+            return redirect()->back()->with('error', 'Failed to connect to MikroTik router.');
+        }
+
+        $interface = 'bridge';
+        $traffic = $this->mikrotikService->getTraffic($client, $interface);
+        dd($traffic);
+        
+        return view('pages/mikrotik/interfaces', compact('router'));
     }
 
     public function insertConnectedDevicesDB($routerId)
@@ -634,9 +689,8 @@ class MikrotikController extends Controller
     }
 
     //Usage
-    public function getUsageStats($routerId) {
-
-
+    public function getUsageStats($routerId) 
+    {
         // Get router details from DB
         $router = Router::where('idrouter', $routerId)->first();
         // dd($router);
@@ -644,7 +698,8 @@ class MikrotikController extends Controller
         return view('pages/mikrotik/usage-stats', compact('router'));
     }
 
-    public function getUsageStatsData(Request $request, $routerId) {
+    public function getUsageStatsData(Request $request, $routerId)
+    {
         // Query usage statistics from `t_traffic_logs_daily`
         $dataStats = DB::table('t_traffic_logs_daily')
             ->selectRaw("
@@ -681,8 +736,8 @@ class MikrotikController extends Controller
         ]);
     }
 
-
-    public function getUsageStatsJson($routerId) {
+    public function getUsageStatsJson($routerId)
+    {
 
     }
     

@@ -119,6 +119,15 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/firewall/get-firewall-options/{routerid}', [MikrotikController::class, 'getFirewallOptions'])->name('mikrotik.firewall-list');
         Route::get('/firewall-master/getData', [MikrotikController::class, 'getFirewallData'])->name('mikrotik.firewall-data'); 
 
+        //Monitor Interface
+        Route::get('/monitor/{routerId}', [MikrotikController::class, 'getMonitor'])->name('mikrotik.monitor');
+        Route::get('/monitor/traffic-data/{routerId}/{interface}', [MikrotikController::class, 'getTraffic'])->name('mikrotik.traffic');
+        Route::get('/traffic-data/{routerId}', [MikrotikController::class, 'getTrafficData'])->name('mikrotik.traffic-data');
+        // Route::get('/devices/getData', [MikrotikController::class, 'getConnectedDevicesData'])->name('mikrotik.devices-data');  
+        // Route::get('/devices/{routerId}', [MikrotikController::class, 'getConnectedDevices'])->name('mikrotik.devices');   
+        // Route::post('/devices/make-static/{leaseId}/{routerId}', [MikrotikController::class, 'setStatic'])->name('mikrotik.set-static');
+        // Route::post('/devices/delete-static/{leaseId}/{routerId}', [MikrotikController::class, 'deleteStatic'])->name('mikrotik.delete-static');
+
         // PPP List
         Route::get('/l2tp/{routerId}', [MikrotikController::class, 'getL2TP'])->name('mikrotik.l2tp');    
         Route::get('/l2tps/{routerId}', [MikrotikController::class, 'getL2TPData'])->name('mikrotik.l2tp-data');    
@@ -182,7 +191,21 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/sales-order/update/{salesId}', [SalesOrderController::class, 'updateSo'])->name('sales-order.updateso');
         Route::get('/sales-order/print/{salesId}', [SalesOrderController::class, 'print'])->name('sales-order.print');
     });
-    
+
+    // Port Checking
+    Route::get('/test-port', function () {
+        $ip = "103.162.146.179";
+        $port = 8333;
+
+        $connection = @fsockopen($ip, $port, $errno, $errstr, 5);
+
+        if (is_resource($connection)) {
+            fclose($connection);
+            return "✅ Port $port is OPEN on $ip";
+        } else {
+            return "❌ Port $port is CLOSED on $ip. Error: $errstr ($errno)";
+        }
+    });    
 
     // Route for the getting the data feed
     Route::get('/json-data-feed', [DataFeedController::class, 'getDataFeed'])->name('json_data_feed');
