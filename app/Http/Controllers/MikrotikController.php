@@ -299,6 +299,8 @@ class MikrotikController extends Controller
     {
         $router = Router::where('idrouter', $routerId)->first();
 
+        $this->insertFirewallListDB($routerId);
+        
         $firewalls = DB::table('m_router_firewall')
             ->where('idrouter', $routerId)
             ->orWhere('idrouter', '0')
@@ -314,7 +316,6 @@ class MikrotikController extends Controller
         // $devices = $this->mikrotikService->getDhcpLeases($client);
         // $devices = $this->mikrotikService->getFirewallList($client);
         // dd($devices);
-        $this->insertFirewallListDB($routerId);
 
         return view('pages/mikrotik/firewall-list', compact('router', 'firewalls'));
     }
